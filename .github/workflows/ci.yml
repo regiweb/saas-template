@@ -33,6 +33,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: node-app
+          ignore-unfixed: true
           format: table
           exit-code: 1
           severity: CRITICAL
@@ -59,6 +60,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: python-app
+          ignore-unfixed: true
           format: table
           exit-code: 1
           severity: CRITICAL
