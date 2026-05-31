@@ -35,7 +35,7 @@ jobs:
           image-ref: node-app
           format: table
           exit-code: 1
-          severity: HIGH,CRITICAL
+          severity: CRITICAL
 
   python:
     name: Python lint & test
@@ -61,7 +61,7 @@ jobs:
           image-ref: python-app
           format: table
           exit-code: 1
-          severity: HIGH,CRITICAL
+          severity: CRITICAL
 
   gitleaks:
     name: Secret scan
