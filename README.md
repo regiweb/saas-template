@@ -48,3 +48,4 @@ saas-template/
 2. Docker build
 3. Trivy security scan (блокирует HIGH/CRITICAL)
 4. Gitleaks secret scan
+# smoke test Sun May 31 13:01:11 MSK 2026
