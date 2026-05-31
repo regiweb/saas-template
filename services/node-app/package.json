@@ -1,0 +1,16 @@
+{
+  "name": "node-app",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "lint": "eslint src/",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "fastify": "^4.28.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

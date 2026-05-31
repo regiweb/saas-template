@@ -1,0 +1,9 @@
+:80 {
+    handle /api/node/* {
+        reverse_proxy node-app:3000
+    }
+
+    handle /api/python/* {
+        reverse_proxy python-app:8000
+    }
+}
