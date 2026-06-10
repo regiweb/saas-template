@@ -1,9 +1,33 @@
+{
+    admin off
+}
+
 :80 {
-    handle /api/node/* {
+    redir https://{host}{uri} permanent
+}
+
+:443 {
+    # AI / worker service
+    handle /ai/* {
+        reverse_proxy python-app:8000
+    }
+
+    # Main API
+    handle /api/* {
         reverse_proxy node-app:3000
     }
 
-    handle /api/python/* {
-        reverse_proxy python-app:8000
+    # Health checks (routed by service prefix)
+    handle /health/node {
+        reverse_proxy node-app:3000/health
+    }
+
+    handle /health/python {
+        reverse_proxy python-app:8000/health
+    }
+
+    # Default — main app
+    handle {
+        reverse_proxy node-app:3000
     }
 }

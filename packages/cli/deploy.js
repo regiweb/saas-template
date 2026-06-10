@@ -44,11 +44,12 @@ export async function deploy(argv) {
   const port = parseInt(args.port ?? '22', 10)
   const user = args.user ?? 'root'
   const keyPath = expandHome(args.key ?? '~/.ssh/id_rsa')
-  let passphrase = args.passphrase ?? null
+  let passphrase = process.env.EZL_SSH_PASSPHRASE ?? null
 
   if (!host) {
     console.error(chalk.red('Error: --host is required'))
     console.error(chalk.dim('Usage: ezl deploy --host <host> [--port 22] [--user root] [--key ~/.ssh/id_rsa]'))
+    console.error(chalk.dim('       EZL_SSH_PASSPHRASE=... ezl deploy ...  # pass passphrase via env'))
     process.exit(1)
   }
 
@@ -158,8 +159,8 @@ export async function deploy(argv) {
 
     step('Starting services')
     await ssh.execCommand('docker compose down 2>&1', { cwd: remoteDir })
-    // Stop any containers that hold port 80 (e.g. a previous deploy under a different project name)
-    await ssh.execCommand('docker ps -q --filter publish=80 | xargs -r docker stop 2>/dev/null; true')
+    // Stop containers from a previous deploy under the old project name (ez-launch)
+    await ssh.execCommand('docker ps -q --filter label=com.docker.compose.project=ez-launch | xargs -r docker stop 2>/dev/null; true')
     const upResult = await ssh.execCommand('docker compose up -d 2>&1', { cwd: remoteDir })
     if (upResult.code !== 0) {
       fail(`docker compose up failed:\n${chalk.dim(upResult.stdout)}`)
