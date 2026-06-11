@@ -45,6 +45,25 @@ Copy `.env.example` → `.env` and set:
 
 Tasks use `EZL-NNN` identifiers. Current milestone: v0.1.0 — core infrastructure.
 
+## Commit Convention
+
+Всегда использовать Conventional Commits:
+```
+<type>(<scope>): <EZL-XXX> — <description>
+```
+
+Типы: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `ci`
+Scope: модуль или папка (`cli`, `auth`, `admin`, `infra`, `ci`)
+
+Примеры:
+```
+feat(cli): EZL-015 — add ezl deploy command with SSH and Docker compose
+fix(security): EZL-SEC-001 — passphrase env, http redirect, docker filter scope
+feat(auth): EZL-017 — register, login, JWT refresh, forgot password
+```
+
+Коммит делать после завершения задачи, до сохранения лога сессии.
+
 ## Code Session Log
 
 After completing any task, save a session log to:

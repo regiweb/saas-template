@@ -1,50 +1,64 @@
-# saas-template
+# EZ Launch
 
-Универсальный шаблон для запуска SaaS-проекта. Node.js + Python + PostgreSQL в Docker Compose.
+**v0.1.0** — Core infrastructure for EZ Launch SaaS platform.
 
-## Быстрый старт
+Node.js API + Python AI/worker + PostgreSQL + Redis + Caddy in Docker Compose.
+
+## Quick start
 
 ```bash
-git clone git@github.com:YOUR_USERNAME/saas-template.git my-project
-cd my-project
 cp .env.example .env
+# edit .env — set POSTGRES_PASSWORD and APP_SECRET
 make up
 ```
 
-Сервисы:
-- Node: http://localhost:3000/health
-- Python: http://localhost:8000/health
-- Caddy proxy: http://localhost
+Services:
+- Main API: http://localhost/api/health
+- AI worker: http://localhost/ai/health
+- Node health: http://localhost/health/node
+- Python health: http://localhost/health/python
 
-## Команды
+## Commands
 
-| Команда | Действие |
-|---------|----------|
-| `make up` | Поднять все сервисы |
-| `make down` | Остановить |
-| `make logs` | Логи всех сервисов |
-| `make build` | Пересобрать образы |
-| `make shell-node` | Shell внутри Node-контейнера |
-| `make shell-python` | Shell внутри Python-контейнера |
+| Command | Action |
+|---------|--------|
+| `make up` | Build and start all services |
+| `make down` | Stop all services |
+| `make logs` | Stream logs |
+| `make build` | Rebuild images |
+| `make test` | Run test suites (Node + Python) |
+| `make shell-node` | Shell into node-app |
+| `make shell-python` | Shell into python-app |
 
-## Структура
+## Stack
 
 ```
-saas-template/
+ez-launch/
 ├── services/
-│   ├── node-app/       # Node.js 22 + Fastify
-│   └── python-app/     # Python 3.12 + FastAPI
-├── .github/workflows/  # CI: lint + test + Trivy
-├── docker-compose.yml
-├── Caddyfile
+│   ├── node-app/       # Node.js 22 + Fastify  (main API)
+│   └── python-app/     # Python 3.12 + FastAPI  (AI / worker)
+├── .github/workflows/  # CI: lint + test + Trivy + Gitleaks
+├── docker-compose.yml  # Caddy · PostgreSQL · Redis · apps
+├── Caddyfile           # Reverse proxy config
 ├── Makefile
+├── CLAUDE.md
 └── .env.example
 ```
 
+## Infrastructure
+
+| Service | Image | Role |
+|---------|-------|------|
+| caddy | caddy:2-alpine | Reverse proxy / TLS |
+| postgres | postgres:16-alpine | Primary database |
+| redis | redis:7-alpine | Cache / queues |
+| node-app | local build | Main API |
+| python-app | local build | AI / worker |
+
 ## CI/CD
 
-Каждый PR в `main`/`develop` запускает:
-1. Lint + тесты (Node и Python)
+Every PR to `main`/`develop` runs:
+1. Lint + tests (Node and Python)
 2. Docker build
-3. Trivy security scan (блокирует HIGH/CRITICAL)
+3. Trivy security scan (blocks HIGH/CRITICAL)
 4. Gitleaks secret scan

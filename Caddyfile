@@ -3,21 +3,24 @@
 }
 
 :80 {
+    # Health check bypasses redirect so deploy probes work over plain HTTP
+    handle /health {
+        reverse_proxy node-app:3000
+    }
     redir https://{host}{uri} permanent
 }
 
 :443 {
-    # AI / worker service
+    tls internal
+
     handle /ai/* {
         reverse_proxy python-app:8000
     }
 
-    # Main API
     handle /api/* {
         reverse_proxy node-app:3000
     }
 
-    # Health checks (routed by service prefix)
     handle /health/node {
         reverse_proxy node-app:3000/health
     }
@@ -26,7 +29,6 @@
         reverse_proxy python-app:8000/health
     }
 
-    # Default — main app
     handle {
         reverse_proxy node-app:3000
     }
