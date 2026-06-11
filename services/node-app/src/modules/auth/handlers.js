@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import { randomBytes } from 'crypto'
+import { sendPasswordReset } from '../mail/mailer.js'
 
 const BCRYPT_ROUNDS = 12
 const REFRESH_TTL_SEC = 7 * 24 * 60 * 60  // 7d
@@ -143,8 +144,7 @@ export async function forgotPassword(request, reply) {
   if (rows[0]) {
     const token = randomBytes(32).toString('hex')
     await request.server.redis.set(`prt:${token}`, rows[0].id, 'EX', RESET_TTL_SEC)
-    // Email not configured yet — log token for local testing
-    request.server.log.info({ resetToken: token }, 'Password reset token (no email configured)')
+    await sendPasswordReset(request.server.log, { to: normalEmail, token })
   }
 
   return reply.send({ message: 'If that email is registered, a reset link has been sent.' })
