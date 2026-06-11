@@ -138,8 +138,9 @@ export async function forgotPassword(request, reply) {
   if (!email || !isValidEmail(email))
     return errReply(reply, 400, 'VALIDATION_ERROR', 'Valid email is required', 'email')
 
+  const normalEmail = email.toLowerCase().trim()
   const { rows } = await request.server.db.query(
-    'SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]
+    'SELECT id FROM users WHERE email = $1', [normalEmail]
   )
   if (rows[0]) {
     const token = randomBytes(32).toString('hex')
