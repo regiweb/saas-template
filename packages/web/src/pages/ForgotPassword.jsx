@@ -27,71 +27,64 @@ export default function ForgotPassword() {
     }
   }
 
-  if (sent) {
-    return (
-      <AuthPage>
-        <AuthNavbar />
-        <AuthBody>
-          <div className="auth-icon-wrap auth-icon-green" style={{ marginBottom: 16 }}>
-            ✉
-          </div>
-          <h1 className="auth-title">Check your inbox</h1>
-          <p className="auth-sub">
-            If <strong style={{ color: 'var(--txt)' }}>{email}</strong> is registered,
-            a reset link has been sent.
-          </p>
-          <Link to="/login">
-            <Button variant="p" type="button">Back to sign in</Button>
-          </Link>
-          <p className="auth-footer">
-            Didn&apos;t receive it?{' '}
-            <button
-              onClick={() => setSent(false)}
-              className="link-teal"
-              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' }}
-            >
-              Try again
-            </button>
-          </p>
-        </AuthBody>
-      </AuthPage>
-    )
-  }
-
   return (
     <AuthPage>
       <AuthNavbar />
       <AuthBody>
-        <div className="auth-icon-wrap auth-icon-teal" style={{ marginBottom: 16 }}>
-          🔑
-        </div>
-        <h1 className="auth-title">Reset password</h1>
-        <p className="auth-sub">Enter your email and we&apos;ll send a reset link.</p>
+        {sent ? (
+          <div>
+            <div className="auth-icon-wrap auth-icon-green" style={{ marginBottom: 16 }}>✉</div>
+            <h1 className="auth-title">Check your inbox</h1>
+            <p className="auth-sub">
+              If <strong style={{ color: 'var(--txt)' }}>{email}</strong> is registered,
+              a reset link has been sent.
+            </p>
+            <Link to="/login">
+              <Button variant="p" type="button">Back to sign in</Button>
+            </Link>
+            <p className="auth-footer">
+              Didn&apos;t receive it?{' '}
+              <button
+                onClick={() => setSent(false)}
+                className="link-teal"
+                style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' }}
+              >
+                Try again
+              </button>
+            </p>
+          </div>
+        ) : (
+          <div>
+            <div className="auth-icon-wrap auth-icon-teal" style={{ marginBottom: 16 }}>🔑</div>
+            <h1 className="auth-title">Reset password</h1>
+            <p className="auth-sub">Enter your email and we&apos;ll send a reset link.</p>
 
-        <form onSubmit={handleSubmit}>
-          {error && <Banner type="err">⚠ {error}</Banner>}
+            <form onSubmit={handleSubmit}>
+              {error && <Banner type="err">⚠ {error}</Banner>}
 
-          <FormField label="Email">
-            <input
-              className="fi"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              disabled={loading}
-              placeholder="you@example.com"
-            />
-          </FormField>
+              <FormField label="Email">
+                <input
+                  className="fi"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  disabled={loading}
+                  placeholder="you@example.com"
+                />
+              </FormField>
 
-          <Button variant="p" loading={loading} disabled={!email} type="submit">
-            {loading ? 'Sending…' : 'Send reset link'}
-          </Button>
-        </form>
+              <Button variant="p" loading={loading} disabled={!email} type="submit">
+                {loading ? 'Sending…' : 'Send reset link'}
+              </Button>
+            </form>
 
-        <p className="auth-footer">
-          <Link to="/login" className="link-teal">Back to sign in</Link>
-        </p>
+            <p className="auth-footer">
+              <Link to="/login" className="link-teal">Back to sign in</Link>
+            </p>
+          </div>
+        )}
       </AuthBody>
     </AuthPage>
   )
