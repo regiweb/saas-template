@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
+import { AuthPage, AuthNavbar, AuthBody } from '../components/ui/AuthLayout.jsx'
+import { Logo } from '../components/ui/Logo.jsx'
+import { FormField } from '../components/ui/FormField.jsx'
+import { Button } from '../components/ui/Button.jsx'
+import { Banner } from '../components/ui/Banner.jsx'
 
 export default function Register() {
   const [email, setEmail] = useState('')
@@ -10,7 +15,7 @@ export default function Register() {
   const { signUp } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
 
@@ -35,86 +40,67 @@ export default function Register() {
     }
   }
 
+  const pwdShort = password.length > 0 && password.length < 8
+  const remaining = 8 - password.length
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-xl mb-4">
-            <span className="text-white text-xl font-bold">E</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="mt-1 text-sm text-gray-500">Start with EZ Launch today</p>
+    <AuthPage>
+      <AuthNavbar />
+      <AuthBody>
+        <div className="auth-logo-row">
+          <Logo size="md" />
         </div>
+        <h1 className="auth-title">Create account</h1>
+        <p className="auth-sub">
+          Start with EZ Launch today.{' '}
+          <Link to="/login" className="link-teal">Already have one?</Link>
+        </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4"
-        >
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">
-              {error}
-            </div>
-          )}
+        <form onSubmit={handleSubmit}>
+          {error && <Banner type="err">⚠ {error}</Banner>}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Email
-            </label>
+          <FormField label="Email">
             <input
-              id="email"
+              className="fi"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
               placeholder="you@example.com"
             />
-          </div>
+          </FormField>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Password
-            </label>
+          <FormField
+            label="Password"
+            hint={pwdShort ? `${remaining} more character${remaining !== 1 ? 's' : ''} needed` : undefined}
+          >
             <input
-              id="password"
+              className="fi"
               type="password"
               autoComplete="new-password"
               required
               minLength={8}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:bg-gray-50 disabled:text-gray-400"
               placeholder="Min 8 characters"
             />
-            {password.length > 0 && password.length < 8 && (
-              <p className="mt-1 text-xs text-amber-600">
-                {8 - password.length} more character{8 - password.length !== 1 ? 's' : ''} needed
-              </p>
-            )}
-          </div>
+          </FormField>
 
-          <button
-            type="submit"
-            disabled={loading || !email || !password}
-            className="w-full py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-          >
-            {loading && (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            )}
+          <Button variant="p" loading={loading} disabled={!email || !password} type="submit">
             {loading ? 'Creating account…' : 'Create account'}
-          </button>
+          </Button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-500">
-          Already have an account?{' '}
-          <Link to="/login" className="text-indigo-600 font-medium hover:underline">
-            Sign in
-          </Link>
+        <p className="auth-footer">
+          By signing up, you agree to our{' '}
+          <a href="#" className="link-teal">Terms</a>
+          {' '}and{' '}
+          <a href="#" className="link-teal">Privacy Policy</a>
         </p>
-      </div>
-    </div>
+      </AuthBody>
+    </AuthPage>
   )
 }
