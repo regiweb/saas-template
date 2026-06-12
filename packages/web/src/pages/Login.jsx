@@ -24,7 +24,6 @@ export default function Login() {
       navigate('/welcome')
     } catch (err) {
       setError(err?.error?.message || 'Something went wrong. Please try again.')
-    } finally {
       setLoading(false)
     }
   }

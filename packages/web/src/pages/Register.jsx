@@ -35,7 +35,6 @@ export default function Register() {
       } else {
         setError(err?.error?.message || 'Something went wrong. Please try again.')
       }
-    } finally {
       setLoading(false)
     }
   }

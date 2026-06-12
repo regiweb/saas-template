@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth.jsx'
+import { AuthPage } from './components/ui/AuthLayout.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
@@ -10,9 +11,9 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   if (loading) {
     return (
-      <div className="auth-page">
+      <AuthPage>
         <div className="spin-page" />
-      </div>
+      </AuthPage>
     )
   }
   if (!user) return <Navigate to="/login" replace />
