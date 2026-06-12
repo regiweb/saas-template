@@ -9,7 +9,9 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null)
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Start loading only when a stored token exists — allows ProtectedRoute to
+  // redirect immediately on first render when there is no session to restore.
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('refreshToken'))
 
   function storeTokens({ accessToken: at, refreshToken: rt, user: u }) {
     setAccessToken(at)
@@ -26,7 +28,7 @@ export function AuthProvider({ children }) {
   // Restore session on mount via stored refresh token
   useEffect(() => {
     const rt = localStorage.getItem('refreshToken')
-    if (!rt) { setLoading(false); return }
+    if (!rt) return   // loading is already false — nothing to restore
 
     api.refresh(rt)
       .then((data) => {
