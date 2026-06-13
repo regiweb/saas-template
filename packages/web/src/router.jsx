@@ -9,15 +9,15 @@ import Welcome from './pages/Welcome.jsx'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) {
-    return (
-      <AuthPage>
-        <div className="spin-page" />
-      </AuthPage>
-    )
-  }
-  if (!user) return <Navigate to="/login" replace />
-  return children
+  return loading ? (
+    <AuthPage>
+      <div className="spin-page" />
+    </AuthPage>
+  ) : user ? (
+    children
+  ) : (
+    <Navigate to="/login" replace />
+  )
 }
 
 export default function Router() {
