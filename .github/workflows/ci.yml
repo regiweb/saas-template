@@ -16,10 +16,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: services/node-app/package-lock.json
 
-      - run: npm ci
+      - name: Debug env
+        run: |
+          echo "Node: $(node --version)"
+          echo "NPM: $(npm --version)"
+          echo "Lock exists: $(test -f services/node-app/package-lock.json && echo YES || echo NO)"
+          head -3 services/node-app/package-lock.json
+
+      - name: npm ci
+        run: npm ci --loglevel verbose 2>&1
         working-directory: services/node-app
 
       - run: npm run lint
