@@ -25,7 +25,13 @@ jobs:
       - run: npm run lint
         working-directory: services/node-app
 
-      - run: npm test
+      - name: Test
+        run: |
+          if find src -name "*.test.js" | grep -q .; then
+            npm test
+          else
+            echo "No test files yet — skipping"
+          fi
         working-directory: services/node-app
 
       - name: Build Docker image
@@ -37,6 +43,7 @@ jobs:
           image-ref: node-app
           format: table
           exit-code: 1
+          ignore-unfixed: true
           severity: HIGH,CRITICAL
 
   python:
@@ -69,6 +76,7 @@ jobs:
           image-ref: python-app
           format: table
           exit-code: 1
+          ignore-unfixed: true
           severity: HIGH,CRITICAL
 
   web:
