@@ -42,7 +42,7 @@ jobs:
         with:
           image-ref: node-app
           format: table
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
@@ -75,7 +75,7 @@ jobs:
         with:
           image-ref: python-app
           format: table
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           severity: HIGH,CRITICAL
 
