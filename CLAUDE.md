@@ -41,6 +41,21 @@ Copy `.env.example` → `.env` and set:
 - Secrets go in `.env` (gitignored), never hardcoded
 - CI runs on every PR: lint → test → docker build → trivy → gitleaks
 
+## Deploy pipeline (v0.2.0)
+
+```
+feature branch → PR (1+ approve) → CI gate → merge to main
+  → auto-deploy to staging (deploy-staging.yml, ports 8080/8443)
+  → manual QA on staging
+  → workflow_dispatch → deploy-prod.yml (requires "production" environment approval)
+```
+
+- **Staging**: auto-deploys on every CI-green merge to `main` — `~/ezl-staging/` on VM, ports 8080/8443
+- **Prod**: manual only — `deploy-prod.yml` via `workflow_dispatch`, requires approve in GitHub Environment `production`
+- **Rollback**: prod images tagged `:rollback` before every update; restore with `docker tag ... :latest && docker compose up -d --no-build`
+- **Branch protection**: PR required on `main`, 1+ approve, CI must pass — see `docs/infra/staging-setup.md`
+- **Postgres backup**: daily `pg_dump` at 03:00 UTC via cron, retention 7 days — see `docs/infra/postgres-backup.md`
+
 ## Task tracking
 
 Tasks use `EZL-NNN` identifiers. Current milestone: v0.1.0 — core infrastructure.

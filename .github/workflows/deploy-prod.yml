@@ -1,21 +1,31 @@
-# DEPRECATED — superseded by deploy-staging.yml (auto) + deploy-prod.yml (manual + approvals).
-# Kept as emergency fallback (workflow_dispatch only). Remove after production gateway is validated.
-name: Deploy (legacy)
+name: Deploy Production
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to VM (legacy)
+  deploy-prod:
+    name: Deploy to production
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Upload files to VM
+      - name: Tag current images as :rollback (before update)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            docker tag ezl-node-app:latest ezl-node-app:rollback 2>/dev/null || true
+            docker tag ezl-python-app:latest ezl-python-app:rollback 2>/dev/null || true
+            echo "Rollback tags saved."
+
+      - name: Upload files to VM (prod)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -23,10 +33,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "services/,docker-compose.yml,Caddyfile,scripts/"
+          source: "services/,scripts/,docker-compose.yml,Caddyfile"
           target: ~/ezl/
 
-      - name: Build & start containers
+      - name: Build & start prod containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}

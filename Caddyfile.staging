@@ -1,0 +1,34 @@
+{
+    admin off
+}
+
+:80 {
+    handle /health {
+        reverse_proxy node-app:3000
+    }
+    redir https://{host}{uri} permanent
+}
+
+:443 {
+    tls internal
+
+    handle /ai/* {
+        reverse_proxy python-app:8000
+    }
+
+    handle /api/* {
+        reverse_proxy node-app:3000
+    }
+
+    handle /health/node {
+        reverse_proxy node-app:3000/health
+    }
+
+    handle /health/python {
+        reverse_proxy python-app:8000/health
+    }
+
+    handle {
+        reverse_proxy node-app:3000
+    }
+}

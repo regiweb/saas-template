@@ -1,21 +1,26 @@
-# DEPRECATED — superseded by deploy-staging.yml (auto) + deploy-prod.yml (manual + approvals).
-# Kept as emergency fallback (workflow_dispatch only). Remove after production gateway is validated.
-name: Deploy (legacy)
+name: Deploy Staging
 
 on:
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to VM (legacy)
+  deploy-staging:
+    name: Deploy to staging
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Upload files to VM
+      - name: Upload files to VM (staging)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -23,10 +28,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "services/,docker-compose.yml,Caddyfile,scripts/"
-          target: ~/ezl/
+          source: "services/,scripts/,docker-compose.staging.yml,Caddyfile.staging"
+          target: ~/ezl-staging/
 
-      - name: Build & start containers
+      - name: Build & start staging containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -34,9 +39,11 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: cd ~/ezl && docker compose up --build -d 2>&1
+          script: |
+            cd ~/ezl-staging
+            docker compose -f docker-compose.staging.yml -p ezl-staging --env-file .env.staging up --build -d 2>&1
 
-      - name: Health check
+      - name: Staging health check
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -46,4 +53,4 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             sleep 15
-            docker exec ezl-caddy-1 wget -qO- http://node-app:3000/health
+            docker exec ezl-staging-caddy-1 wget -qO- http://node-app:3000/health
