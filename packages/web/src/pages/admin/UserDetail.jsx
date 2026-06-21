@@ -4,7 +4,8 @@ import AdminShell from '../../components/admin/AdminShell.jsx'
 import ActivityFeed from '../../components/admin/ActivityFeed.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import Toast from '../../components/admin/Toast.jsx'
-import * as api from '../../api/adminMock.js'
+import * as api from '../../api/admin.js'
+import { useAuth } from '../../hooks/useAuth.jsx'
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -28,6 +29,7 @@ function relativeTime(iso) {
 export default function UserDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { accessToken } = useAuth()
 
   const [user, setUser]         = useState(null)
   const [activity, setActivity] = useState([])
@@ -41,31 +43,32 @@ export default function UserDetail() {
   function showToast(message, variant = 'ok') { setToast({ message, variant }) }
 
   useEffect(() => {
-    api.getUserById(id)
+    if (!accessToken) return
+    api.getUserById(accessToken, id)
       .then(({ user: u, activity: a }) => { setUser(u); setActivity(a) })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, accessToken])
 
   async function handleConfirm() {
     if (!confirm || !user) return
     setActLoading(true)
     try {
       if (confirm.type === 'block') {
-        await api.blockUser(user.id)
+        await api.blockUser(accessToken, user.id)
         setUser(u => ({ ...u, status: 'blocked', blockedAt: new Date().toISOString() }))
         showToast('User blocked')
       } else if (confirm.type === 'unblock') {
-        await api.unblockUser(user.id)
+        await api.unblockUser(accessToken, user.id)
         setUser(u => { const n = { ...u, status: 'active' }; delete n.blockedAt; return n })
         showToast('User unblocked')
       } else if (confirm.type === 'delete') {
-        await api.deleteUser(user.id)
+        await api.deleteUser(accessToken, user.id)
         navigate('/admin/users', { replace: true })
         return
       } else if (confirm.type === 'role') {
         const newRole = user.role === 'admin' ? 'user' : 'admin'
-        await api.changeRole(user.id, newRole)
+        await api.changeRole(accessToken, user.id, newRole)
         setUser(u => ({ ...u, role: newRole }))
         showToast(`Role changed to ${newRole}`)
       }
@@ -76,7 +79,7 @@ export default function UserDetail() {
   }
 
   async function handleReset() {
-    const res = await api.resetPassword(user.id)
+    const res = await api.resetPassword(accessToken, user.id)
     showToast(`Reset email sent to ${res.email ?? user.email}`)
   }
 
