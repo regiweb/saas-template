@@ -673,7 +673,7 @@
 .filter-select:focus { border-color: var(--acc); }
 .reset-link { font-size: 11px; color: var(--teal); cursor: pointer; white-space: nowrap; }
 .reset-link:hover { text-decoration: underline; }
-.table-wrap { border: 1px solid var(--brd); border-radius: var(--r12); overflow: hidden; }
+.table-wrap { border: 1px solid var(--brd); border-radius: var(--r12); overflow: visible; }
 .users-table { width: 100%; border-collapse: collapse; }
 .users-table th { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 9px 14px; text-align: left; background: var(--bg); border-bottom: 1px solid var(--brd); }
 .users-table td { padding: 10px 14px; border-bottom: 1px solid var(--brd-s); font-size: 12px; vertical-align: middle; }
