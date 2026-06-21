@@ -41,6 +41,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/ezl-staging
+            docker compose -f docker-compose.staging.yml -p ezl-staging --env-file .env.staging down --remove-orphans || true
             docker compose -f docker-compose.staging.yml -p ezl-staging --env-file .env.staging up --build -d 2>&1
 
       - name: Staging health check

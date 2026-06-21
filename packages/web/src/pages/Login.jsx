@@ -20,8 +20,8 @@ export default function Login() {
     setError(null)
     setLoading(true)
     try {
-      await signIn(email, password)
-      navigate('/welcome')
+      const data = await signIn(email, password)
+      navigate(data?.user?.role === 'admin' ? '/admin' : '/welcome')
     } catch (err) {
       setError(err?.error?.message || 'Something went wrong. Please try again.')
       setLoading(false)
