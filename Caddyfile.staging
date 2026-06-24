@@ -3,15 +3,6 @@
 }
 
 :80 {
-    handle /health {
-        reverse_proxy node-app:3000
-    }
-    redir https://{host}{uri} permanent
-}
-
-:443 {
-    tls internal
-
     handle /ai/* {
         reverse_proxy python-app:8000
     }
