@@ -28,7 +28,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "services/,scripts/,docker-compose.staging.yml,Caddyfile.staging"
+          source: "services/,packages/web/,scripts/,docker-compose.staging.yml,Caddyfile.staging"
           target: ~/ezl-staging/
 
       - name: Build & start staging containers
