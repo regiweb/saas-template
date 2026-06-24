@@ -20,6 +20,6 @@
     }
 
     handle {
-        reverse_proxy node-app:3000
+        reverse_proxy web:80
     }
 }

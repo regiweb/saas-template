@@ -102,6 +102,9 @@ jobs:
           grep -q 'EZ Launch' packages/web/dist/index.html
           grep -q 'assets/' packages/web/dist/index.html
 
+      - name: Build Docker image
+        run: docker build -t web ./packages/web
+
   gitleaks:
     name: Secret scan
     runs-on: ubuntu-latest

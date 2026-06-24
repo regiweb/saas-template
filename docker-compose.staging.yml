@@ -1,4 +1,8 @@
 services:
+  web:
+    build: ./packages/web
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     ports:
@@ -11,6 +15,8 @@ services:
       node-app:
         condition: service_started
       python-app:
+        condition: service_started
+      web:
         condition: service_started
     restart: unless-stopped
 
