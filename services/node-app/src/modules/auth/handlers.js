@@ -78,6 +78,15 @@ export async function login(request, reply) {
   if (!user || !valid || typeof valid !== 'boolean')
     return errReply(reply, 401, 'INVALID_CREDENTIALS', 'Invalid email or password')
 
+  await request.server.db.query(
+    'UPDATE users SET last_login = NOW() WHERE id = $1',
+    [user.id]
+  )
+  await request.server.db.query(
+    'INSERT INTO user_audit_log (user_id, actor_id, type, event, meta) VALUES ($1, $1, $2, $3, $4)',
+    [user.id, 'login', 'Logged in', `IP ${request.ip}`]
+  ).catch(() => {})  // non-fatal: table may not exist yet on first login before migration
+
   const tokens = await issueTokens(request.server, user)
   return reply.send({
     user: { id: user.id, email: user.email, role: user.role },

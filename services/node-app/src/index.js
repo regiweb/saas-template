@@ -6,6 +6,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { pool, runMigrations } from './db.js'
 import { authRoutes } from './modules/auth/routes.js'
+import { adminRoutes } from './modules/admin/routes.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PORT = process.env.NODE_PORT || 3000
@@ -25,12 +26,14 @@ await app.register(fjwt, {
 app.decorate('db', pool)
 app.decorate('redis', new Redis(process.env.REDIS_URL || 'redis://redis:6379'))
 
-await app.register(authRoutes, { prefix: '/api/auth' })
+await app.register(authRoutes,  { prefix: '/api/auth' })
+await app.register(adminRoutes, { prefix: '/api/admin' })
 
 app.get('/health', async () => ({ status: 'ok', service: 'node', version: '0.1.0' }))
 
 await runMigrations([
   join(__dirname, 'modules/auth/migrations'),
+  join(__dirname, 'modules/admin/migrations'),
 ])
 
 await app.listen({ port: PORT, host: '0.0.0.0' })
