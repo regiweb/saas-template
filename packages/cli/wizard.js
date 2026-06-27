@@ -1,14 +1,28 @@
 import inquirer from 'inquirer'
 import { randomBytes } from 'crypto'
+import { listModules, expandSelection } from './modules.js'
 
 export async function runWizard(defaultName) {
-  return inquirer.prompt([
+  const mods = listModules()
+  const answers = await inquirer.prompt([
     {
       type: 'input',
       name: 'projectName',
       message: 'Project name:',
       default: defaultName,
       validate: v => v.trim() !== '' || 'Project name is required'
+    },
+    {
+      type: 'checkbox',
+      name: 'modules',
+      message: 'Modules to include:',
+      choices: mods.map(m => ({
+        name: m.name
+          + (m.requires?.length ? ` (requires: ${m.requires.join(', ')})` : '')
+          + (m.type === 'util' ? ' [util]' : ''),
+        value: m.name,
+        checked: m.name === 'auth',
+      })),
     },
     {
       type: 'input',
@@ -37,4 +51,8 @@ export async function runWizard(defaultName) {
       default: 'development'
     }
   ])
+
+  // EZL-US-010: расширяем выбор до замыкания requires (admin -> +auth) + валидация
+  answers.modules = expandSelection(answers.modules)
+  return answers
 }
