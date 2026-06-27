@@ -1,6 +1,10 @@
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir, writeFile, cp } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
+import { MODULES_SRC } from './modules.js'
+
+// .../services/node-app/src — источник db.js/loader.js при модульной сборке
+const TEMPLATE_SRC = join(MODULES_SRC, '..')
 
 const slug = name =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -209,7 +213,7 @@ function nodeDockerfile() {
   return `FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 COPY src/ ./src/
 EXPOSE 3000
 CMD ["node", "src/index.js"]
@@ -289,6 +293,77 @@ def health():
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
+function nodeIndexModular() {
+  return `import Fastify from 'fastify'
+import fjwt from '@fastify/jwt'
+import cors from '@fastify/cors'
+import Redis from 'ioredis'
+import { pool, runMigrations } from './db.js'
+import { loadModules } from './modules/loader.js'
+
+const PORT = process.env.NODE_PORT || 3000
+const app = Fastify({ logger: true })
+
+await app.register(cors, {
+  origin: ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+})
+
+await app.register(fjwt, { secret: process.env.APP_SECRET || 'dev-secret-change-me' })
+
+app.decorate('db', pool)
+app.decorate('redis', new Redis(process.env.REDIS_URL || 'redis://redis:6379'))
+
+// авто-дискавери модулей (выбраны на ez-launch init)
+const loaded = await loadModules(app)
+
+app.get('/health', async () => ({ status: 'ok', service: 'node', version: '0.1.0' }))
+app.get('/api/modules', async () => loaded.manifest)
+
+await runMigrations(loaded.migrationsDirs)
+
+await app.listen({ port: PORT, host: '0.0.0.0' })
+`
+}
+
+function nodePackageJsonModular(name) {
+  return JSON.stringify({
+    name: slug(name),
+    version: '0.1.0',
+    type: 'module',
+    scripts: {
+      start: 'node src/index.js',
+      dev: 'node --watch src/index.js',
+      lint: 'eslint src/',
+      test: 'node --test src/**/*.test.js'
+    },
+    dependencies: {
+      '@fastify/cors': '^10.0.0',
+      '@fastify/jwt': '^9.0.0',
+      bcrypt: '^5.1.1',
+      fastify: '^5.0.0',
+      ioredis: '^5.4.0',
+      nodemailer: '^6.9.0',
+      pg: '^8.13.0'
+    },
+    devDependencies: { eslint: '^9.0.0' }
+  }, null, 2) + '\n'
+}
+
+// досборка модульного node-app поверх заглушки: db.js + loader.js + выбранные модули
+async function emitModules(projectName, modules) {
+  const nodeSrc = join(projectName, 'services', 'node-app', 'src')
+  await mkdir(join(nodeSrc, 'modules'), { recursive: true })
+  await cp(join(TEMPLATE_SRC, 'db.js'), join(nodeSrc, 'db.js'))
+  await cp(join(MODULES_SRC, 'loader.js'), join(nodeSrc, 'modules', 'loader.js'))
+  for (const name of modules) {
+    await cp(join(MODULES_SRC, name), join(nodeSrc, 'modules', name), { recursive: true })
+  }
+  await writeFile(join(nodeSrc, 'index.js'), nodeIndexModular())
+  await writeFile(join(projectName, 'services', 'node-app', 'package.json'), nodePackageJsonModular(projectName))
+}
+
 export async function generate(projectName, answers) {
   if (existsSync(projectName)) {
     throw new Error(`Directory "${projectName}" already exists`)
@@ -317,4 +392,9 @@ export async function generate(projectName, answers) {
     writeFile(d('services', 'python-app', 'requirements.txt'), pythonRequirements()),
     writeFile(d('services', 'python-app', 'src', 'main.py'), pythonMainPy()),
   ])
+
+  // EZL-US-010: выбраны модули — дособираем модульный node-app поверх заглушки
+  if (answers.modules?.length) {
+    await emitModules(projectName, answers.modules)
+  }
 }
