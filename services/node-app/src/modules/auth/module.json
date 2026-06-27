@@ -1,0 +1,11 @@
+{
+  "name": "auth",
+  "prefix": "/api/auth",
+  "routes": "./routes.js",
+  "export": "authRoutes",
+  "migrations": "./migrations",
+  "requires": [],
+  "optional": ["mail"],
+  "env": ["APP_SECRET"],
+  "nav": []
+}

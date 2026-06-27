@@ -1,0 +1,11 @@
+{
+  "name": "admin",
+  "prefix": "/api/admin",
+  "routes": "./routes.js",
+  "export": "adminRoutes",
+  "migrations": "./migrations",
+  "requires": ["auth"],
+  "optional": [],
+  "env": ["APP_SECRET"],
+  "nav": [{ "label": "Admin", "path": "/admin", "role": "admin" }]
+}
