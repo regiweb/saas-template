@@ -47,12 +47,25 @@ export default function useSessions() {
     }
   }
 
+  async function revokeBulkSessions(ids) {
+    const idSet = new Set(ids)
+    const prev  = sessions
+    setSessions(s => s.filter(x => !idSet.has(x.id)))
+    try {
+      await api.revokeBulkSessions(accessToken, ids)
+    } catch {
+      setSessions(prev)
+      throw new Error('Failed to revoke sessions.')
+    }
+  }
+
   return {
     sessions,
     loading,
     error,
     revokeSession,
     revokeAllForUser,
+    revokeBulkSessions,
     reload: load,
   }
 }
