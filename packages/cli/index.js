@@ -6,16 +6,16 @@ const [,, command, ...rest] = process.argv
 if (command === 'init') {
   const { runWizard } = await import('./wizard.js')
   const { generate } = await import('./generator.js')
+  const { banner, printSummary } = await import('./ui.js')
 
   const projectArg = rest[0]
-  console.log(chalk.bold('EZ Launch v0.1.0\n'))
+  banner()
 
   const answers = await runWizard(projectArg ?? 'my-ezl-app')
 
   try {
     await generate(answers.projectName, answers)
-    console.log(chalk.green(`\nProject "${answers.projectName}" created.`))
-    console.log(chalk.dim(`  cd ${answers.projectName} && make up`))
+    printSummary(answers, answers.rawModules)
   } catch (err) {
     console.error(chalk.red(`\nError: ${err.message}`))
     process.exit(1)

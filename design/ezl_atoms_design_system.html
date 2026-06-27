@@ -1,0 +1,541 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, .ezl-root {
+  background: #18181B;
+  color: #F4F4F5;
+  font-family: 'Inter', sans-serif;
+}
+
+.ezl-root {
+  padding: 40px 32px;
+  min-height: 100vh;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #71717A;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #27272A;
+}
+
+.section { margin-bottom: 48px; }
+
+.atoms-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.atom-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.atom-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #52525B;
+  letter-spacing: 0.05em;
+}
+
+/* ── BUTTON ── */
+.btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.btn-primary   { background: #0D9488; color: #fff; }
+.btn-secondary { background: transparent; color: #E4E4E7; border: 1px solid #3F3F46; }
+.btn-ghost     { background: transparent; color: #A1A1AA; border: none; }
+.btn-danger    { background: #DC2626; color: #fff; }
+.btn-sm        { font-size: 12px; padding: 6px 14px; }
+.btn-disabled  { opacity: 0.38; pointer-events: none; }
+
+/* ── BADGE ── */
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+.badge-default { background: #27272A; color: #A1A1AA; }
+.badge-success { background: #052E16; color: #4ADE80; }
+.badge-error   { background: #450A0A; color: #F87171; }
+.badge-warning { background: #431407; color: #FB923C; }
+.badge-info    { background: #172554; color: #60A5FA; }
+.badge-teal    { background: #042F2E; color: #2DD4BF; }
+
+/* ── INPUT ── */
+.input-wrap { display: flex; flex-direction: column; gap: 6px; }
+.input-field-label { font-size: 12px; color: #A1A1AA; font-weight: 500; }
+.input-field {
+  background: #27272A;
+  border: 1px solid #3F3F46;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: #F4F4F5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  width: 200px;
+  outline: none;
+}
+.input-field::placeholder { color: #52525B; }
+.input-field.focus { border-color: #0D9488; box-shadow: 0 0 0 2px rgba(13,148,136,0.15); }
+.input-field.error-state { border-color: #DC2626; }
+.input-error-text { font-size: 11px; color: #F87171; font-family: 'JetBrains Mono', monospace; }
+
+/* ── ICON ── */
+.icon-wrap {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: #27272A;
+  display: flex; align-items: center; justify-content: center;
+  color: #A1A1AA;
+  font-size: 18px;
+}
+.icon-wrap.active { background: #042F2E; color: #0D9488; }
+
+/* ── AVATAR ── */
+.avatar {
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.avatar-sm { width: 28px; height: 28px; font-size: 10px; }
+.avatar-md { width: 36px; height: 36px; font-size: 13px; }
+.avatar-lg { width: 48px; height: 48px; font-size: 17px; }
+.avatar-teal { background: #042F2E; color: #2DD4BF; }
+.avatar-group { display: flex; gap: -6px; }
+.avatar-group .avatar { margin-left: -8px; border: 2px solid #18181B; }
+.avatar-group .avatar:first-child { margin-left: 0; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: #27272A; width: 200px; }
+.divider-label-wrap {
+  display: flex; align-items: center; gap: 10px; width: 200px;
+  color: #52525B;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.divider-label-wrap::before,
+.divider-label-wrap::after { content: ''; flex: 1; height: 1px; background: #27272A; }
+
+/* ── TAG / CHIP ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #27272A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #A1A1AA;
+  border: 1px solid #3F3F46;
+}
+.tag-teal { background: #042F2E; color: #2DD4BF; border-color: #134E4A; }
+.tag-x {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #3F3F46; color: #A1A1AA;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; cursor: pointer; flex-shrink: 0;
+}
+
+/* ── SWITCH ── */
+.switch-track {
+  width: 44px; height: 24px; border-radius: 999px;
+  display: flex; align-items: center;
+  padding: 2px; cursor: pointer; transition: background 0.2s;
+  position: relative;
+}
+.switch-on  { background: #0D9488; }
+.switch-off { background: #3F3F46; }
+.switch-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; position: absolute;
+  transition: left 0.2s;
+}
+.switch-on  .switch-thumb { left: calc(100% - 22px); }
+.switch-off .switch-thumb { left: 2px; }
+
+/* ── CHECKBOX ── */
+.checkbox-row { display: flex; align-items: center; gap: 10px; }
+.checkbox-box {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1.5px solid #3F3F46;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.checkbox-box.checked {
+  background: #0D9488; border-color: #0D9488;
+  color: #fff; font-size: 11px;
+}
+.checkbox-box.indeterminate {
+  background: #0D9488; border-color: #0D9488;
+  color: #fff; font-size: 14px; font-weight: 700;
+}
+.checkbox-label { font-size: 13px; color: #D4D4D8; font-family: 'Inter', sans-serif; }
+.checkbox-label.disabled { color: #3F3F46; }
+
+/* ── SPINNER ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  border-radius: 50%;
+  border-style: solid;
+  border-color: #27272A;
+  border-top-color: #0D9488;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.spinner-sm { width: 16px; height: 16px; border-width: 2px; }
+.spinner-md { width: 24px; height: 24px; border-width: 2.5px; }
+.spinner-lg { width: 32px; height: 32px; border-width: 3px; }
+
+/* ── CARD (bonus) ── */
+.card {
+  background: #1C1C1F;
+  border: 1px solid #27272A;
+  border-radius: 10px;
+  padding: 20px;
+  width: 220px;
+}
+.card-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: #F4F4F5; margin-bottom: 6px;
+}
+.card-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #52525B; margin-bottom: 14px;
+}
+.card-teal { border-left: 3px solid #0D9488; }
+
+/* header */
+.page-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: #F4F4F5; margin-bottom: 4px;
+}
+.page-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: #52525B;
+  margin-bottom: 48px;
+}
+</style>
+
+<div class="ezl-root">
+  <div class="page-title">EZ Launch — Atoms</div>
+  <div class="page-sub">Design System v0.1 · session 009</div>
+
+  <!-- BUTTONS -->
+  <div class="section">
+    <div class="section-label">Button</div>
+    <div class="atoms-grid">
+      <div class="atom-block">
+        <div class="atom-label">primary</div>
+        <button class="btn btn-primary">Deploy</button>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">secondary</div>
+        <button class="btn btn-secondary">Configure</button>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">ghost</div>
+        <button class="btn btn-ghost">Cancel</button>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">danger</div>
+        <button class="btn btn-danger">Delete</button>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">primary sm</div>
+        <button class="btn btn-primary btn-sm">Run</button>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">disabled</div>
+        <button class="btn btn-primary btn-disabled">Deploy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="section">
+    <div class="section-label">Badge</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">default</div>
+        <span class="badge badge-default"><span class="badge-dot" style="background:#52525B"></span>idle</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">success</div>
+        <span class="badge badge-success"><span class="badge-dot" style="background:#4ADE80"></span>running</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">error</div>
+        <span class="badge badge-error"><span class="badge-dot" style="background:#F87171"></span>failed</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">warning</div>
+        <span class="badge badge-warning"><span class="badge-dot" style="background:#FB923C"></span>pending</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">info</div>
+        <span class="badge badge-info"><span class="badge-dot" style="background:#60A5FA"></span>queued</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">teal / always on</div>
+        <span class="badge badge-teal"><span class="badge-dot" style="background:#0D9488"></span>always on</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="section">
+    <div class="section-label">Input</div>
+    <div class="atoms-grid" style="align-items:flex-start">
+      <div class="atom-block">
+        <div class="atom-label">default</div>
+        <div class="input-wrap">
+          <div class="input-field-label">Project name</div>
+          <input class="input-field" placeholder="my-saas-app" readonly />
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">focus</div>
+        <div class="input-wrap">
+          <div class="input-field-label">Project name</div>
+          <input class="input-field focus" value="my-saas-app" readonly />
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">error</div>
+        <div class="input-wrap">
+          <div class="input-field-label">Project name</div>
+          <input class="input-field error-state" value="My App!" readonly />
+          <span class="input-error-text">no spaces or special chars</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ICON -->
+  <div class="section">
+    <div class="section-label">Icon wrapper</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">default</div>
+        <div class="icon-wrap"><i class="ti ti-terminal-2" aria-hidden="true"></i></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">active</div>
+        <div class="icon-wrap active"><i class="ti ti-rocket" aria-hidden="true"></i></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">settings</div>
+        <div class="icon-wrap"><i class="ti ti-settings" aria-hidden="true"></i></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">database</div>
+        <div class="icon-wrap active"><i class="ti ti-database" aria-hidden="true"></i></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">git</div>
+        <div class="icon-wrap"><i class="ti ti-git-branch" aria-hidden="true"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVATAR -->
+  <div class="section">
+    <div class="section-label">Avatar</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">sm 28px</div>
+        <div class="avatar avatar-sm avatar-teal">OZ</div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">md 36px</div>
+        <div class="avatar avatar-md avatar-teal">OZ</div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">lg 48px</div>
+        <div class="avatar avatar-lg avatar-teal">OZ</div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">group</div>
+        <div class="avatar-group">
+          <div class="avatar avatar-md avatar-teal">OZ</div>
+          <div class="avatar avatar-md" style="background:#1E3A5F;color:#60A5FA;border:2px solid #18181B">AK</div>
+          <div class="avatar avatar-md" style="background:#3B1F5E;color:#C084FC;border:2px solid #18181B">MR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="section">
+    <div class="section-label">Divider</div>
+    <div class="atoms-grid" style="flex-direction:column;align-items:flex-start;gap:20px">
+      <div class="atom-block">
+        <div class="atom-label">horizontal</div>
+        <div class="divider"></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">with label</div>
+        <div class="divider-label-wrap">or</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAG -->
+  <div class="section">
+    <div class="section-label">Tag / Chip</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">default</div>
+        <span class="tag">node.js</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">teal</div>
+        <span class="tag tag-teal">postgres</span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">removable</div>
+        <span class="tag">docker <span class="tag-x">✕</span></span>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">removable teal</div>
+        <span class="tag tag-teal">redis <span class="tag-x" style="background:#134E4A;color:#2DD4BF">✕</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SWITCH -->
+  <div class="section">
+    <div class="section-label">Switch</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">on</div>
+        <div class="switch-track switch-on"><div class="switch-thumb"></div></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">off</div>
+        <div class="switch-track switch-off"><div class="switch-thumb"></div></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">disabled on</div>
+        <div class="switch-track switch-on" style="opacity:0.38"><div class="switch-thumb"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKBOX -->
+  <div class="section">
+    <div class="section-label">Checkbox</div>
+    <div class="atoms-grid" style="flex-direction:column;align-items:flex-start;gap:14px">
+      <div class="atom-block">
+        <div class="atom-label">unchecked</div>
+        <div class="checkbox-row">
+          <div class="checkbox-box"></div>
+          <span class="checkbox-label">Enable HTTPS</span>
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">checked</div>
+        <div class="checkbox-row">
+          <div class="checkbox-box checked">✓</div>
+          <span class="checkbox-label">Enable HTTPS</span>
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">indeterminate</div>
+        <div class="checkbox-row">
+          <div class="checkbox-box indeterminate">−</div>
+          <span class="checkbox-label">Select all</span>
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">disabled</div>
+        <div class="checkbox-row">
+          <div class="checkbox-box" style="opacity:0.38"></div>
+          <span class="checkbox-label disabled">Enable HTTPS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPINNER -->
+  <div class="section">
+    <div class="section-label">Spinner</div>
+    <div class="atoms-grid" style="align-items:center">
+      <div class="atom-block">
+        <div class="atom-label">sm 16px</div>
+        <div class="spinner spinner-sm"></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">md 24px</div>
+        <div class="spinner spinner-md"></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">lg 32px</div>
+        <div class="spinner spinner-lg"></div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">inline context</div>
+        <button class="btn btn-primary" style="gap:10px">
+          <div class="spinner spinner-sm" style="border-color:rgba(255,255,255,0.2);border-top-color:#fff"></div>
+          Deploying...
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD BONUS -->
+  <div class="section">
+    <div class="section-label">Card (bonus — molecule)</div>
+    <div class="atoms-grid" style="align-items:flex-start">
+      <div class="atom-block">
+        <div class="atom-label">default</div>
+        <div class="card">
+          <div class="card-title">Core</div>
+          <div class="card-sub">always included</div>
+          <span class="badge badge-success" style="font-size:10px"><span class="badge-dot" style="background:#4ADE80"></span>running</span>
+        </div>
+      </div>
+      <div class="atom-block">
+        <div class="atom-label">accent left border</div>
+        <div class="card card-teal">
+          <div class="card-title">Auth</div>
+          <div class="card-sub">needs Core, DB</div>
+          <span class="badge badge-teal" style="font-size:10px"><span class="badge-dot" style="background:#0D9488"></span>always on</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
