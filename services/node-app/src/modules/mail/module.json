@@ -1,0 +1,9 @@
+{
+  "name": "mail",
+  "type": "util",
+  "entry": "./mailer.js",
+  "requires": [],
+  "optional": [],
+  "env": ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS"],
+  "nav": []
+}
