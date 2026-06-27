@@ -131,3 +131,86 @@ export async function saveSettings(updates) {
   Object.assign(mockSettings, updates)
   return { ...mockSettings }
 }
+
+let mockSessions = [
+  {
+    id: 'ses_1',
+    userId: 'usr_admin_1',
+    email: 'admin@ezlaunch.io',
+    ip: '192.168.1.10',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    createdAt: '2026-06-27T08:00:00.000Z',
+    lastSeenAt: '2026-06-27T10:45:00.000Z',
+    current: true,
+  },
+  {
+    id: 'ses_2',
+    userId: 'usr_admin_1',
+    email: 'admin@ezlaunch.io',
+    ip: '10.0.0.5',
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+    createdAt: '2026-06-26T18:30:00.000Z',
+    lastSeenAt: '2026-06-26T22:10:00.000Z',
+    current: false,
+  },
+  {
+    id: 'ses_3',
+    userId: 'usr_mock_1',
+    email: 'demo@example.com',
+    ip: '91.234.12.5',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0',
+    createdAt: '2026-06-27T07:15:00.000Z',
+    lastSeenAt: '2026-06-27T10:30:00.000Z',
+    current: false,
+  },
+  {
+    id: 'ses_4',
+    userId: 'usr_mock_1',
+    email: 'demo@example.com',
+    ip: '91.234.12.5',
+    userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36',
+    createdAt: '2026-06-25T14:00:00.000Z',
+    lastSeenAt: '2026-06-25T16:45:00.000Z',
+    current: false,
+  },
+  {
+    id: 'ses_5',
+    userId: 'usr_2',
+    email: 'anna@corp.io',
+    ip: '185.56.80.44',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edg/125.0.0.0 Safari/537.36',
+    createdAt: '2026-06-27T09:00:00.000Z',
+    lastSeenAt: '2026-06-27T10:55:00.000Z',
+    current: false,
+  },
+  {
+    id: 'ses_6',
+    userId: 'usr_5',
+    email: 'sarah@design.co',
+    ip: '78.120.33.9',
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
+    createdAt: '2026-06-26T20:00:00.000Z',
+    lastSeenAt: '2026-06-26T23:30:00.000Z',
+    current: false,
+  },
+]
+
+export async function getSessions() {
+  await delay(500)
+  return [...mockSessions]
+}
+
+export async function revokeSession(id) {
+  await delay(400)
+  const session = mockSessions.find(s => s.id === id)
+  if (!session) return Promise.reject({ error: { code: 'NOT_FOUND', message: 'Session not found' } })
+  if (session.current) return Promise.reject({ error: { code: 'FORBIDDEN', message: 'Cannot revoke your own active session' } })
+  mockSessions = mockSessions.filter(s => s.id !== id)
+  return null
+}
+
+export async function revokeAllSessions(userId) {
+  await delay(500)
+  mockSessions = mockSessions.filter(s => s.userId !== userId || s.current)
+  return null
+}

@@ -4,9 +4,10 @@ import { useAuth } from '../../hooks/useAuth.jsx'
 import MobileDrawer from './MobileDrawer.jsx'
 
 const NAV_ITEMS = [
-  { icon: '📊', label: 'Dashboard', path: '/admin',          end: true },
-  { icon: '👥', label: 'Users',     path: '/admin/users',    end: false },
-  { icon: '⚙️', label: 'Settings',  path: '/admin/settings', end: false },
+  { icon: '📊', label: 'Dashboard', path: '/admin',           end: true },
+  { icon: '👥', label: 'Users',     path: '/admin/users',     end: false },
+  { icon: '🖥', label: 'Sessions',  path: '/admin/sessions',  end: false },
+  { icon: '⚙️', label: 'Settings',  path: '/admin/settings',  end: false },
 ]
 
 export default function AdminShell({ children }) {
