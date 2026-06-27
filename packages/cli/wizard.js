@@ -53,6 +53,9 @@ export async function runWizard(defaultName) {
   ])
 
   // EZL-US-010: расширяем выбор до замыкания requires (admin -> +auth) + валидация
-  answers.modules = expandSelection(answers.modules)
+  // EZL-US-011: сохраняем сырой выбор до замыкания для отображения added-by в сводке
+  const rawModules = [...answers.modules]
+  answers.modules = expandSelection(rawModules)
+  answers.rawModules = rawModules
   return answers
 }
