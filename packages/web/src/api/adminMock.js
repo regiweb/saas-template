@@ -201,27 +201,26 @@ let mockSessions = [
   },
 ]
 
-export async function getSessions() {
+export async function getSessions(_token) {
   await delay(500)
   return [...mockSessions]
 }
 
-export async function revokeSession(id) {
+export async function revokeSession(_token, id) {
   await delay(400)
   const session = mockSessions.find(s => s.id === id)
   if (!session) return Promise.reject({ error: { code: 'NOT_FOUND', message: 'Session not found' } })
-  // current sessions CAN be revoked (caller must show warning modal with countdown)
   mockSessions = mockSessions.filter(s => s.id !== id)
   return null
 }
 
-export async function revokeAllSessions(userId) {
+export async function revokeAllSessions(_token, userId) {
   await delay(500)
   mockSessions = mockSessions.filter(s => s.userId !== userId || s.current)
   return null
 }
 
-export async function revokeBulkSessions(ids) {
+export async function revokeBulkSessions(_token, ids) {
   await delay(500)
   const idSet = new Set(ids)
   mockSessions = mockSessions.filter(s => !idSet.has(s.id))
