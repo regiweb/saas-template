@@ -13,6 +13,7 @@
  */
 import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
+import { Logo } from './Logo.jsx'
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),' +
@@ -79,12 +80,7 @@ export default function Drawer({ id, navItems, onClose, onSignOut, user }) {
       >
         {/* Header */}
         <div className="app-drawer-header">
-          <div className="app-brand">
-            <span className="app-brand-mark" aria-hidden="true">⚡</span>
-            <span className="app-brand-text">
-              EZ<span className="app-brand-accent">Launch</span>
-            </span>
-          </div>
+          <Logo size="sm" />
           <button
             className="app-drawer-close"
             onClick={onClose}
