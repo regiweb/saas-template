@@ -79,7 +79,7 @@ export default function Drawer({ id, navItems, onClose, onSignOut, user }) {
         className="app-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label="Navigation"
+        aria-label={t('Navigation')}
       >
         {/* Header */}
         <div className="app-drawer-header">
@@ -87,7 +87,7 @@ export default function Drawer({ id, navItems, onClose, onSignOut, user }) {
           <button
             className="app-drawer-close"
             onClick={onClose}
-            aria-label="Close navigation"
+            aria-label={t('Close navigation')}
           >
             ✕
           </button>

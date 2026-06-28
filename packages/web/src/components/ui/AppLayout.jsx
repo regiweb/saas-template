@@ -68,7 +68,7 @@ export default function AppLayout({ children }) {
           <button
             className="app-hamburger"
             onClick={() => setDrawerOpen(true)}
-            aria-label="Open navigation"
+            aria-label={t('Open navigation')}
             aria-expanded={drawerOpen}
             aria-controls="app-nav-drawer"
           >

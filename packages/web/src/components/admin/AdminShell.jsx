@@ -35,11 +35,11 @@ export default function AdminShell({ children }) {
         <Logo size="sm" badge="ADMIN" />
         <div className="nav-right">
           <LanguageSwitcher variant="compact" />
-          <button className="nav-icon-btn" aria-label="Notifications"><i className="ti ti-bell" aria-hidden="true" /></button>
+          <button className="nav-icon-btn" aria-label={t('Notifications')}><i className="ti ti-bell" aria-hidden="true" /></button>
           <div className="avatar">{initials}</div>
           <button
             className="hamburger-btn"
-            aria-label="Open menu"
+            aria-label={t('Open menu')}
             onClick={() => setDrawerOpen(true)}
           >
             <span className="hline" />
