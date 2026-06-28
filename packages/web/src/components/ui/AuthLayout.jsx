@@ -1,4 +1,5 @@
 import { Logo } from './Logo.jsx'
+import { LanguageSwitcher } from './LanguageSwitcher.jsx'
 
 export function AuthPage({ children }) {
   return (
@@ -12,6 +13,7 @@ export function AuthNavbar() {
   return (
     <div className="auth-navbar">
       <Logo size="sm" />
+      <LanguageSwitcher variant="compact" />
     </div>
   )
 }
