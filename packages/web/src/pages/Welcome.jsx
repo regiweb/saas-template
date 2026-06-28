@@ -4,10 +4,32 @@
  */
 import { useAuth } from '../hooks/useAuth.jsx'
 
+// Skeleton shown defensively if user is null post-ProtectedRoute (should not happen in practice)
+function DashboardSkeleton() {
+  return (
+    <AuthPage>
+      <AuthNavbar />
+      <AuthBody>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="skel" style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto' }} />
+          <div className="skel" style={{ height: 18, width: '70%', margin: '0 auto', borderRadius: 4 }} />
+          <div className="skel" style={{ height: 14, width: '35%', margin: '0 auto', borderRadius: 999 }} />
+          <div className="skel" style={{ height: 88, width: '100%', borderRadius: 12 }} />
+          <div className="skel" style={{ height: 1, width: '100%' }} />
+          <div className="skel" style={{ height: 40, width: '100%', borderRadius: 8 }} />
+          <div className="skel" style={{ height: 40, width: '100%', borderRadius: 8 }} />
+        </div>
+      </AuthBody>
+    </AuthPage>
+  )
+}
+
 export default function Welcome() {
   const { user } = useAuth()
 
-  const initials = user?.email?.[0]?.toUpperCase() || '?'
+  if (!user) return <DashboardSkeleton />
+
+  const initials = user.email[0].toUpperCase()
 
   return (
     <div className="welcome-body">

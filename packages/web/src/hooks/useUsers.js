@@ -45,12 +45,22 @@ export default function useUsers() {
   async function deleteUser(id)          { await api.deleteUser(accessToken, id);          load(filters) }
   async function inviteUser(email, role) { await api.inviteUser(accessToken, email, role); load(filters) }
 
+  /**
+   * Patch a single user's role in the local list without triggering a
+   * full reload.  Use for optimistic updates — call again with the
+   * original role to roll back on API error.
+   */
+  function optimisticSetRole(id, role) {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u))
+  }
+
   const totalPages = Math.ceil(total / PER_PAGE)
 
   return {
     users, total, totalPages, loading, error,
     filters, updateFilters, setPage,
     blockUser, unblockUser, changeRole, resetPassword, deleteUser, inviteUser,
+    optimisticSetRole,
     reload: () => load(filters),
   }
 }

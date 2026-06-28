@@ -11,6 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import UsersList from './pages/admin/UsersList.jsx'
 import UserDetail from './pages/admin/UserDetail.jsx'
 import AdminSettings from './pages/admin/AdminSettings.jsx'
+import SessionsList from './pages/admin/SessionsList.jsx'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -69,6 +70,10 @@ export default function Router() {
         <Route
           path="/admin/users/:id"
           element={<AdminRoute><UserDetail /></AdminRoute>}
+        />
+        <Route
+          path="/admin/sessions"
+          element={<AdminRoute><SessionsList /></AdminRoute>}
         />
         <Route
           path="/admin/settings"

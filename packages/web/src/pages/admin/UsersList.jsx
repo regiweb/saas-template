@@ -4,6 +4,9 @@ import AdminShell from '../../components/admin/AdminShell.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import Toast from '../../components/admin/Toast.jsx'
 import useUsers from '../../hooks/useUsers.js'
+import { useAuth } from '../../hooks/useAuth.jsx'
+import * as api from '../../api/admin.js'
+import { ROLE_LABELS } from '../../constants/roles.js'
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -15,7 +18,7 @@ function initials(email) {
   return (parts[0][0] + (parts[1]?.[0] ?? parts[0][1] ?? '')).toUpperCase()
 }
 
-function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView }) {
+function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onChangeRole, isSelf }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -40,6 +43,12 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView }) {
             ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}>🔓 Unblock user</div>
             : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}>🔒 Block user</div>
           }
+          {/* Role change — hidden for own account to prevent self-lockout */}
+          {!isSelf && (
+            user.role === 'user'
+              ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}>👑 Make Admin</div>
+              : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}>👤 Make User</div>
+          )}
           <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}>🔑 Reset password</div>
           <div className="dropdown-sep" />
           <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>🗑 Delete</div>
@@ -50,10 +59,10 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView }) {
 }
 
 function InviteModal({ onClose, onInvite }) {
-  const [email, setEmail]   = useState('')
-  const [role, setRole]     = useState('user')
+  const [email, setEmail]     = useState('')
+  const [role, setRole]       = useState('user')
   const [loading, setLoading] = useState(false)
-  const [err, setErr]       = useState(null)
+  const [err, setErr]         = useState(null)
 
   async function submit(e) {
     e.preventDefault()
@@ -110,18 +119,49 @@ function InviteModal({ onClose, onInvite }) {
 
 export default function UsersList() {
   const navigate = useNavigate()
+  const { user: authUser, accessToken } = useAuth()
+
   const {
     users, total, totalPages, loading, error,
     filters, updateFilters, setPage,
     blockUser, unblockUser, resetPassword, deleteUser, inviteUser,
+    optimisticSetRole,
   } = useUsers()
 
-  const [confirm, setConfirm] = useState(null)  // { type, user }
+  const [confirm, setConfirm]         = useState(null)  // { type, user, targetRole? }
   const [actionLoading, setActionLoading] = useState(false)
-  const [toast, setToast]   = useState(null)     // { message, variant }
-  const [showInvite, setShowInvite] = useState(false)
+  const [toast, setToast]             = useState(null)   // { message, variant }
+  const [showInvite, setShowInvite]   = useState(false)
 
   function showToast(message, variant = 'ok') { setToast({ message, variant }) }
+
+  /**
+   * Apply role change directly (without modal) — used for demotion.
+   * Optimistic update → API → rollback on error.
+   */
+  async function applyListRoleChange(targetUser, newRole) {
+    const prevRole = targetUser.role
+    optimisticSetRole(targetUser.id, newRole)
+    try {
+      await api.changeRole(accessToken, targetUser.id, newRole)
+      showToast(`${targetUser.email} is now ${ROLE_LABELS[newRole]}`)
+    } catch {
+      optimisticSetRole(targetUser.id, prevRole)
+      showToast('Failed to change role — please try again', 'err')
+    }
+  }
+
+  /**
+   * Entry point from RowDropdown.
+   * Promotion to 'admin' requires confirmation; demotion is direct.
+   */
+  function handleRoleChangeInList(targetUser, newRole) {
+    if (newRole === 'admin') {
+      setConfirm({ type: 'role', user: targetUser, targetRole: 'admin' })
+      return
+    }
+    applyListRoleChange(targetUser, newRole)
+  }
 
   async function handleConfirm() {
     if (!confirm) return
@@ -136,6 +176,17 @@ export default function UsersList() {
       } else if (confirm.type === 'delete') {
         await deleteUser(confirm.user.id)
         showToast(`${confirm.user.email} deleted`)
+      } else if (confirm.type === 'role') {
+        // Promotion confirmed — optimistic update + API + rollback on error
+        const prevRole = confirm.user.role
+        optimisticSetRole(confirm.user.id, confirm.targetRole)
+        try {
+          await api.changeRole(accessToken, confirm.user.id, confirm.targetRole)
+          showToast(`${confirm.user.email} is now ${ROLE_LABELS[confirm.targetRole]}`)
+        } catch {
+          optimisticSetRole(confirm.user.id, prevRole)
+          showToast('Failed to change role — please try again', 'err')
+        }
       }
     } finally {
       setActionLoading(false)
@@ -259,37 +310,50 @@ export default function UsersList() {
                 <tr><th>User</th><th>Role</th><th>Status</th><th>Created At</th><th /></tr>
               </thead>
               <tbody>
-                {users.map(u => (
-                  <tr key={u.id} onClick={() => navigate(`/admin/users/${u.id}`)}>
-                    <td>
-                      <div className="user-cell">
-                        <div className={`user-av ${u.role}`}>{initials(u.email)}</div>
-                        <span className="user-email">{u.email}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${u.role}`}>
-                        {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${u.status}`}>
-                        {u.status.charAt(0).toUpperCase() + u.status.slice(1)}
-                      </span>
-                    </td>
-                    <td><span className="date-cell">{fmtDate(u.createdAt)}</span></td>
-                    <td onClick={e => e.stopPropagation()}>
-                      <RowDropdown
-                        user={u}
-                        onView={() => navigate(`/admin/users/${u.id}`)}
-                        onBlock={() => setConfirm({ type: 'block', user: u })}
-                        onUnblock={() => setConfirm({ type: 'unblock', user: u })}
-                        onReset={() => handleReset(u)}
-                        onDelete={() => setConfirm({ type: 'delete', user: u })}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {users.map(u => {
+                  const isSelf = authUser?.id === u.id
+                  return (
+                    <tr key={u.id} onClick={() => navigate(`/admin/users/${u.id}`)}>
+                      <td>
+                        <div className="user-cell">
+                          <div className={`user-av ${u.role}`}>{initials(u.email)}</div>
+                          <span className="user-email">{u.email}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`badge badge-${u.role}`}>
+                          {ROLE_LABELS[u.role]}
+                        </span>
+                        {isSelf && (
+                          <span
+                            style={{ marginLeft: 4, fontSize: 10, color: 'var(--muted)', cursor: 'help', userSelect: 'none' }}
+                            title="You cannot change your own role"
+                          >
+                            🔒
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`badge badge-${u.status}`}>
+                          {u.status.charAt(0).toUpperCase() + u.status.slice(1)}
+                        </span>
+                      </td>
+                      <td><span className="date-cell">{fmtDate(u.createdAt)}</span></td>
+                      <td onClick={e => e.stopPropagation()}>
+                        <RowDropdown
+                          user={u}
+                          isSelf={isSelf}
+                          onView={() => navigate(`/admin/users/${u.id}`)}
+                          onBlock={() => setConfirm({ type: 'block', user: u })}
+                          onUnblock={() => setConfirm({ type: 'unblock', user: u })}
+                          onReset={() => handleReset(u)}
+                          onDelete={() => setConfirm({ type: 'delete', user: u })}
+                          onChangeRole={newRole => handleRoleChangeInList(u, newRole)}
+                        />
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           )}
@@ -331,19 +395,32 @@ export default function UsersList() {
         )}
       </div>
 
-      {/* Block/Delete modal */}
+      {/* Confirm modals: block / unblock / delete / role-promotion */}
       {confirm && (
         <ConfirmModal
-          title={confirm.type === 'block' ? 'Block user?' : confirm.type === 'unblock' ? 'Unblock user?' : 'Delete account?'}
+          title={
+            confirm.type === 'block'     ? 'Block user?'
+            : confirm.type === 'unblock' ? 'Unblock user?'
+            : confirm.type === 'delete'  ? 'Delete account?'
+            : `Promote to ${ROLE_LABELS[confirm.targetRole]}?`
+          }
           body={
             confirm.type === 'block'
               ? <><strong>{confirm.user.email}</strong> will lose access immediately. All active sessions will be terminated. You can unblock them at any time.</>
               : confirm.type === 'unblock'
               ? <><strong>{confirm.user.email}</strong> will regain access to the platform.</>
-              : <><strong>{confirm.user.email}</strong> and all associated data will be permanently deleted. This action <strong>cannot be undone</strong>.</>
+              : confirm.type === 'delete'
+              ? <><strong>{confirm.user.email}</strong> and all associated data will be permanently deleted. This action <strong>cannot be undone</strong>.</>
+              : /* role promotion */
+                <>Promote <strong>{confirm.user.email}</strong> to <strong>Admin</strong>? They will gain full administrative access to the platform, including user management.</>
           }
-          confirmLabel={confirm.type === 'block' ? '🔒 Block user' : confirm.type === 'unblock' ? '🔓 Unblock user' : '🗑 Delete permanently'}
-          confirmClass={confirm.type === 'unblock' ? 'warn' : 'danger'}
+          confirmLabel={
+            confirm.type === 'block'     ? '🔒 Block user'
+            : confirm.type === 'unblock' ? '🔓 Unblock user'
+            : confirm.type === 'delete'  ? '🗑 Delete permanently'
+            : '👑 Promote to Admin'
+          }
+          confirmClass={confirm.type === 'delete' ? 'danger' : 'warn'}
           onConfirm={handleConfirm}
           onCancel={() => setConfirm(null)}
           loading={actionLoading}
