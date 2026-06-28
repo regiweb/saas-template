@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
+import { useT } from '../i18n/index.jsx'
 import { AuthPage, AuthNavbar, AuthBody } from '../components/ui/AuthLayout.jsx'
 import { Logo } from '../components/ui/Logo.jsx'
 import { FormField } from '../components/ui/FormField.jsx'
@@ -13,6 +14,7 @@ export default function Register() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const { signUp } = useAuth()
+  const t = useT()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -20,7 +22,7 @@ export default function Register() {
     setError(null)
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError(t('Password must be at least 8 characters.'))
       return
     }
 
@@ -31,9 +33,9 @@ export default function Register() {
     } catch (err) {
       const code = err?.error?.code
       if (code === 'USER_EXISTS') {
-        setError('An account with that email already exists.')
+        setError(t('An account with that email already exists.'))
       } else {
-        setError(err?.error?.message || 'Something went wrong. Please try again.')
+        setError(err?.error?.message || t('Something went wrong. Please try again.'))
       }
       setLoading(false)
     }
@@ -49,16 +51,16 @@ export default function Register() {
         <div className="auth-logo-row">
           <Logo size="md" />
         </div>
-        <h1 className="auth-title">Create account</h1>
+        <h1 className="auth-title">{t('Create account')}</h1>
         <p className="auth-sub">
-          Start with EZ Launch today.{' '}
-          <Link to="/login" className="link-teal">Already have one?</Link>
+          {t('Start with EZ Launch today.')}{' '}
+          <Link to="/login" className="link-teal">{t('Already have one?')}</Link>
         </p>
 
         <form onSubmit={handleSubmit}>
           {error && <Banner type="err">⚠ {error}</Banner>}
 
-          <FormField label="Email">
+          <FormField label={t('Email')}>
             <input
               className="fi"
               type="email"
@@ -72,8 +74,8 @@ export default function Register() {
           </FormField>
 
           <FormField
-            label="Password"
-            hint={pwdShort ? `${remaining} more character${remaining !== 1 ? 's' : ''} needed` : undefined}
+            label={t('Password')}
+            hint={pwdShort ? t('{n} more characters needed', { n: remaining }) : undefined}
           >
             <input
               className="fi"
@@ -84,20 +86,20 @@ export default function Register() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               disabled={loading}
-              placeholder="Min 8 characters"
+              placeholder={t('Min 8 characters')}
             />
           </FormField>
 
           <Button variant="p" loading={loading} disabled={!email || !password} type="submit">
-            {loading ? 'Creating account…' : 'Create account'}
+            {loading ? t('Creating account…') : t('Create account')}
           </Button>
         </form>
 
         <p className="auth-footer">
-          By signing up, you agree to our{' '}
-          <a href="#" className="link-teal">Terms</a>
-          {' '}and{' '}
-          <a href="#" className="link-teal">Privacy Policy</a>
+          {t('By signing up, you agree to our')}{' '}
+          <a href="#" className="link-teal">{t('Terms')}</a>
+          {' '}{t('and')}{' '}
+          <a href="#" className="link-teal">{t('Privacy Policy')}</a>
         </p>
       </AuthBody>
     </AuthPage>

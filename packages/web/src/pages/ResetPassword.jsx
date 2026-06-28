@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
+import { useT } from '../i18n/index.jsx'
 import { AuthPage, AuthNavbar, AuthBody } from '../components/ui/AuthLayout.jsx'
 import { FormField } from '../components/ui/FormField.jsx'
 import { Button } from '../components/ui/Button.jsx'
@@ -15,6 +16,7 @@ export default function ResetPassword() {
   const [loading, setLoading]     = useState(false)
   const [success, setSuccess]     = useState(false)
   const { api } = useAuth()
+  const t = useT()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -22,7 +24,7 @@ export default function ResetPassword() {
     setError(null)
 
     if (password !== confirm) {
-      setError('Passwords do not match.')
+      setError(t('Passwords do not match.'))
       return
     }
 
@@ -35,8 +37,8 @@ export default function ResetPassword() {
       const code = err?.error?.code
       setError(
         code === 'INVALID_TOKEN'
-          ? 'This reset link has expired or already been used. Please request a new one.'
-          : (err?.error?.message || 'Something went wrong. Please try again.')
+          ? t('This reset link has expired or already been used. Please request a new one.')
+          : (err?.error?.message || t('Something went wrong. Please try again.'))
       )
     } finally {
       setLoading(false)
@@ -54,32 +56,32 @@ export default function ResetPassword() {
         {!token ? (
           <div>
             <div className="auth-icon-wrap auth-icon-err">⚠</div>
-            <h1 className="auth-title">Invalid link</h1>
+            <h1 className="auth-title">{t('Invalid link')}</h1>
             <p className="auth-sub">
-              No reset token found. Please use the link from your email or request a new one.
+              {t('No reset token found. Use the link from your email or request a new one.')}
             </p>
             <Link to="/forgot-password">
-              <Button variant="p" type="button">Request new link</Button>
+              <Button variant="p" type="button">{t('Request new link')}</Button>
             </Link>
           </div>
         ) : success ? (
           <div>
             <div className="auth-icon-wrap auth-icon-green">✓</div>
-            <h1 className="auth-title">Password updated!</h1>
-            <p className="auth-sub">Redirecting you to sign in…</p>
+            <h1 className="auth-title">{t('Password updated!')}</h1>
+            <p className="auth-sub">{t('Redirecting you to sign in…')}</p>
           </div>
         ) : (
           <div>
             <div className="auth-icon-wrap auth-icon-teal">🔒</div>
-            <h1 className="auth-title">New password</h1>
-            <p className="auth-sub">Choose a strong password for your account.</p>
+            <h1 className="auth-title">{t('New password')}</h1>
+            <p className="auth-sub">{t('Choose a strong password for your account.')}</p>
 
             <form onSubmit={handleSubmit}>
               {error && <Banner type="err">⚠ {error}</Banner>}
 
               <FormField
-                label="New password"
-                hint={pwdShort ? `${remaining} more character${remaining !== 1 ? 's' : ''} needed` : undefined}
+                label={t('New password')}
+                hint={pwdShort ? t('{n} more characters needed', { n: remaining }) : undefined}
               >
                 <input
                   className="fi"
@@ -90,13 +92,13 @@ export default function ResetPassword() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   disabled={loading}
-                  placeholder="Min 8 characters"
+                  placeholder={t('Min 8 characters')}
                 />
               </FormField>
 
               <FormField
-                label="Confirm password"
-                error={mismatch ? 'Passwords do not match' : undefined}
+                label={t('Confirm password')}
+                error={mismatch ? t('Passwords do not match') : undefined}
               >
                 <input
                   className={`fi${mismatch ? ' err' : ''}`}
@@ -106,7 +108,7 @@ export default function ResetPassword() {
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   disabled={loading}
-                  placeholder="Repeat password"
+                  placeholder={t('Repeat password')}
                 />
               </FormField>
 
@@ -116,12 +118,12 @@ export default function ResetPassword() {
                 disabled={!password || !confirm || mismatch}
                 type="submit"
               >
-                {loading ? 'Updating…' : 'Update password'}
+                {loading ? t('Updating…') : t('Update password')}
               </Button>
             </form>
 
             <p className="auth-footer">
-              <Link to="/forgot-password" className="link-teal">Request a new reset link</Link>
+              <Link to="/forgot-password" className="link-teal">{t('Request a new reset link')}</Link>
             </p>
           </div>
         )}

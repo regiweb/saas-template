@@ -1,3 +1,5 @@
+import { useT } from '../../i18n/index.jsx'
+
 const DOT = {
   register: 'dot-reg',
   login:    'dot-login',
@@ -9,6 +11,7 @@ const DOT = {
 }
 
 export default function ActivityFeed({ items }) {
+  const t = useT()
   return (
     <div className="feed-list">
       {items.map((item, i) => (
@@ -17,17 +20,17 @@ export default function ActivityFeed({ items }) {
           <div className="feed-info">
             <div className="feed-event">
               {item.event
-                ? item.event
+                ? t(item.event)
                 : (
                   <>
-                    {item.prefix && <>{item.prefix} · </>}
+                    {item.prefix && <>{t(item.prefix)} · </>}
                     <strong>{item.actor}</strong>
-                    {item.verb && <> {item.verb}</>}
+                    {item.verb && <> {t(item.verb)}</>}
                   </>
                 )
               }
             </div>
-            <div className="feed-meta">{item.meta}</div>
+            <div className="feed-meta">{t(item.meta)}</div>
           </div>
           <div className="feed-time">{item.time}</div>
         </div>
