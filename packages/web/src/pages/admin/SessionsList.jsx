@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AdminShell from '../../components/admin/AdminShell.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
+import IdTag from '../../components/admin/IdTag.jsx'
 import Toast from '../../components/admin/Toast.jsx'
 import useSessions from '../../hooks/useSessions.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
@@ -318,8 +319,9 @@ export default function SessionsList() {
 
                     {/* User — email + CURRENT badge on second line */}
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start', minWidth: 0 }}>
                         <span className="user-email">{s.email}</span>
+                        <IdTag id={s.id} />
                         {s.current && (
                           <span
                             className="badge badge-active"
