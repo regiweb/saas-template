@@ -321,5 +321,7 @@
   "Сохранить изменения": "Save Changes",
   "UTC+3 — Москва": "UTC+3 — Moscow",
   "UTC-5 — Нью-Йорк": "UTC-5 — New York",
-  "Таймаут сессии (минуты)": "Session Timeout (minutes)"
+  "Таймаут сессии (минуты)": "Session Timeout (minutes)",
+
+  "Действия пользователя": "User actions"
 }
