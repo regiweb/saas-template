@@ -14,6 +14,8 @@
 import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Logo } from './Logo.jsx'
+import { LanguageSwitcher } from './LanguageSwitcher.jsx'
+import { useT } from '../../i18n/index.jsx'
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),' +
@@ -22,6 +24,7 @@ const FOCUSABLE =
 
 export default function Drawer({ id, navItems, onClose, onSignOut, user }) {
   const panelRef = useRef(null)
+  const t = useT()
 
   // Lock body scroll + Esc to close
   useEffect(() => {
@@ -111,18 +114,21 @@ export default function Drawer({ id, navItems, onClose, onSignOut, user }) {
               }
               onClick={onClose}
             >
-              <span className="app-nav-icon" aria-hidden="true">{item.icon}</span>
-              {item.label}
+              <i className={`app-nav-icon ${item.icon}`} aria-hidden="true" />
+              {t(item.label)}
             </NavLink>
           ))}
         </nav>
 
-        {/* Footer: sign out */}
+        {/* Footer: language + sign out */}
         <div className="app-drawer-footer">
           <div className="app-drawer-sep" />
+          <div className="app-drawer-lang">
+            <LanguageSwitcher variant="compact" />
+          </div>
           <button className="app-nav-signout" onClick={onSignOut}>
-            <span className="app-nav-icon" aria-hidden="true">↩</span>
-            <span>Sign out</span>
+            <i className="app-nav-icon ti ti-logout" aria-hidden="true" />
+            <span>{t('Sign out')}</span>
           </button>
         </div>
       </div>

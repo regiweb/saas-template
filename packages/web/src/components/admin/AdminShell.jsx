@@ -4,6 +4,8 @@ import { useAuth } from '../../hooks/useAuth.jsx'
 import { NAV_ITEMS } from '../../nav.js'
 import Drawer from '../ui/Drawer.jsx'
 import { Logo } from '../ui/Logo.jsx'
+import { LanguageSwitcher } from '../ui/LanguageSwitcher.jsx'
+import { useT } from '../../i18n/index.jsx'
 
 export default function AdminShell({ children }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -11,6 +13,7 @@ export default function AdminShell({ children }) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const t = useT()
 
   useEffect(() => { setDrawerOpen(false) }, [location.pathname])
 
@@ -31,7 +34,8 @@ export default function AdminShell({ children }) {
       <header className="admin-navbar">
         <Logo size="sm" badge="ADMIN" />
         <div className="nav-right">
-          <button className="nav-icon-btn" aria-label="Notifications">🔔</button>
+          <LanguageSwitcher variant="compact" />
+          <button className="nav-icon-btn" aria-label="Notifications"><i className="ti ti-bell" aria-hidden="true" /></button>
           <div className="avatar">{initials}</div>
           <button
             className="hamburger-btn"
@@ -56,14 +60,14 @@ export default function AdminShell({ children }) {
                 className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
                 title={collapsed ? item.label : undefined}
               >
-                <span className="ni-icon">{item.icon}</span>
-                <span className="ni-label">{item.label}</span>
+                <i className={`ni-icon ${item.icon}`} aria-hidden="true" />
+                <span className="ni-label">{t(item.label)}</span>
               </NavLink>
             ))}
             <div className="sidebar-sep" />
             <button className="nav-item danger" onClick={handleSignOut}>
-              <span className="ni-icon">↩</span>
-              <span className="ni-label">Sign out</span>
+              <i className="ni-icon ti ti-logout" aria-hidden="true" />
+              <span className="ni-label">{t('Sign out')}</span>
             </button>
           </nav>
           <div className="sidebar-footer">

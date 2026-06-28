@@ -17,12 +17,15 @@ import { useAuth } from '../../hooks/useAuth.jsx'
 import { NAV_ITEMS } from '../../nav.js'
 import Drawer from './Drawer.jsx'
 import { Logo } from './Logo.jsx'
+import { LanguageSwitcher } from './LanguageSwitcher.jsx'
+import { useT } from '../../i18n/index.jsx'
 
 export default function AppLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { user, signOut } = useAuth()
   const navigate  = useNavigate()
   const location  = useLocation()
+  const t = useT()
 
   // Close drawer on route change
   useEffect(() => {
@@ -58,6 +61,7 @@ export default function AppLayout({ children }) {
         <Logo size="sm" />
 
         <div className="app-navbar-right">
+          <LanguageSwitcher variant="compact" />
           <div className="app-avatar" aria-hidden="true">{initials}</div>
 
           {/* Hamburger — visible only on mobile via CSS */}
@@ -89,14 +93,14 @@ export default function AppLayout({ children }) {
                   `app-nav-item${isActive ? ' active' : ''}`
                 }
               >
-                <span className="app-nav-icon" aria-hidden="true">{item.icon}</span>
-                <span className="app-nav-label">{item.label}</span>
+                <i className={`app-nav-icon ${item.icon}`} aria-hidden="true" />
+                <span className="app-nav-label">{t(item.label)}</span>
               </NavLink>
             ))}
             <div className="app-nav-sep" />
             <button className="app-nav-signout" onClick={handleSignOut}>
-              <span className="app-nav-icon" aria-hidden="true">↩</span>
-              <span className="app-nav-label">Sign out</span>
+              <i className="app-nav-icon ti ti-logout" aria-hidden="true" />
+              <span className="app-nav-label">{t('Sign out')}</span>
             </button>
           </nav>
         </aside>

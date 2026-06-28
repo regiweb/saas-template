@@ -8,9 +8,9 @@
  * roles: ['admin'] → visible only to users whose role is in the array
  */
 export const NAV_ITEMS = [
-  { icon: '🏠', label: 'Dashboard', path: '/welcome',         end: true,  roles: null },
-  { icon: '📊', label: 'Admin',     path: '/admin',           end: true,  roles: ['admin'] },
-  { icon: '👥', label: 'Users',     path: '/admin/users',     end: false, roles: ['admin'] },
-  { icon: '🖥', label: 'Sessions',  path: '/admin/sessions',  end: false, roles: ['admin'] },
-  { icon: '⚙️',  label: 'Settings', path: '/admin/settings',  end: false, roles: ['admin'] },
+  { icon: 'ti ti-home',             label: 'Dashboard', path: '/welcome',        end: true,  roles: null },
+  { icon: 'ti ti-layout-dashboard', label: 'Admin',     path: '/admin',          end: true,  roles: ['admin'] },
+  { icon: 'ti ti-users',            label: 'Users',     path: '/admin/users',    end: false, roles: ['admin'] },
+  { icon: 'ti ti-device-desktop',   label: 'Sessions',  path: '/admin/sessions', end: false, roles: ['admin'] },
+  { icon: 'ti ti-settings',         label: 'Settings',  path: '/admin/settings', end: false, roles: ['admin'] },
 ]
