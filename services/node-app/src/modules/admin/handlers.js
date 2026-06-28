@@ -69,8 +69,11 @@ export async function getDashboard(request, reply) {
 
 export async function listUsers(request, reply) {
   const { search = '', role = '', status = '', page = 1 } = request.query
-  const perPage = 20
-  const offset  = (parseInt(page) - 1) * perPage
+  const PER_PAGE_OPTIONS = [10, 20, 50, 100]
+  const perPage = PER_PAGE_OPTIONS.includes(parseInt(request.query.perPage))
+    ? parseInt(request.query.perPage)
+    : 20
+  const offset  = (Math.max(1, parseInt(page) || 1) - 1) * perPage
 
   const conditions = []
   const params     = []

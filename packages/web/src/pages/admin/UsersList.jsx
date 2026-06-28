@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import AdminShell from '../../components/admin/AdminShell.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import InviteModal from '../../components/admin/InviteModal.jsx'
+import IdTag from '../../components/admin/IdTag.jsx'
 import Toast from '../../components/admin/Toast.jsx'
-import useUsers from '../../hooks/useUsers.js'
+import useUsers, { PER_PAGE_OPTIONS } from '../../hooks/useUsers.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import * as api from '../../api/admin.js'
 import { ROLE_LABELS } from '../../constants/roles.js'
@@ -22,27 +24,53 @@ function initials(email) {
 
 function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onChangeRole, isSelf }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const [coords, setCoords] = useState(null)
+  const btnRef = useRef(null)
+  const menuRef = useRef(null)
   const t = useT()
 
+  // Menu is portaled to <body> with fixed positioning so it is never clipped
+  // by the table's horizontal scroll container on mobile.
   useEffect(() => {
     if (!open) return
-    function handler(e) { if (!ref.current?.contains(e.target)) setOpen(false) }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    const place = () => {
+      const r = btnRef.current?.getBoundingClientRect()
+      if (r) setCoords({ top: r.bottom + 4, right: window.innerWidth - r.right })
+    }
+    place()
+    const onDoc = (e) => {
+      if (!btnRef.current?.contains(e.target) && !menuRef.current?.contains(e.target)) setOpen(false)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    const onScroll = () => setOpen(false)
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      document.removeEventListener('mousedown', onDoc)
+      document.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', onScroll, true)
+    }
   }, [open])
 
   return (
-    <div className="dropdown" ref={ref}>
+    <div className="dropdown">
       <button
+        ref={btnRef}
         className="actions-btn"
         aria-label={t('User actions')}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
       >···</button>
-      {open && (
-        <div className="dropdown-menu">
+      {open && coords && createPortal(
+        <div
+          ref={menuRef}
+          className="dropdown-menu dropdown-menu-portal"
+          style={{ position: 'fixed', top: coords.top, right: coords.right }}
+        >
           <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}>{t('👁 View profile')}</div>
           <div className="dropdown-sep" />
           {!isSelf && (user.status === 'blocked'
@@ -61,7 +89,8 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onCh
               <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>{t('🗑 Delete')}</div>
             </>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -74,7 +103,7 @@ export default function UsersList() {
 
   const {
     users, total, totalPages, loading, error,
-    filters, updateFilters, setPage,
+    filters, updateFilters, setPage, setPerPage,
     blockUser, unblockUser, resetPassword, deleteUser, inviteUser,
     optimisticSetRole,
   } = useUsers()
@@ -151,8 +180,8 @@ export default function UsersList() {
   }
 
   const hasFilters = filters.search || filters.role || filters.status
-  const from = (filters.page - 1) * 20 + 1
-  const to   = Math.min(filters.page * 20, total)
+  const from = total === 0 ? 0 : (filters.page - 1) * filters.perPage + 1
+  const to   = Math.min(filters.page * filters.perPage, total)
 
   return (
     <AdminShell>
@@ -268,7 +297,10 @@ export default function UsersList() {
                       <td>
                         <div className="user-cell">
                           <div className={`user-av ${u.role}`}>{initials(u.email)}</div>
-                          <span className="user-email">{u.email}</span>
+                          <div className="user-id-stack">
+                            <span className="user-email">{u.email}</span>
+                            <IdTag id={u.id} />
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -311,37 +343,52 @@ export default function UsersList() {
         </div>
 
         {/* Pagination */}
-        {!loading && total > 20 && (
+        {!loading && !error && total > 0 && (
           <div className="pagination">
             <span className="page-info">{t('Showing {from}–{to} of {total}', { from, to, total })}</span>
-            <div className="page-btns">
-              <button
-                className="page-btn"
-                disabled={filters.page <= 1}
-                onClick={() => setPage(filters.page - 1)}
-              >{t('← Prev')}</button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const p = i + 1
-                return (
-                  <button
-                    key={p}
-                    className={`page-btn${filters.page === p ? ' active' : ''}`}
-                    onClick={() => setPage(p)}
-                  >{p}</button>
-                )
-              })}
-              {totalPages > 5 && (
-                <>
-                  <span style={{ fontSize: 11, color: 'var(--muted)', padding: '0 4px' }}>…</span>
-                  <button className="page-btn" onClick={() => setPage(totalPages)}>{totalPages}</button>
-                </>
-              )}
-              <button
-                className="page-btn"
-                disabled={filters.page >= totalPages}
-                onClick={() => setPage(filters.page + 1)}
-              >{t('Next →')}</button>
-            </div>
+
+            <label className="page-size">
+              <span className="page-size-label">{t('Per page')}</span>
+              <select
+                className="page-size-select"
+                value={filters.perPage}
+                onChange={e => setPerPage(Number(e.target.value))}
+                aria-label={t('Rows per page')}
+              >
+                {PER_PAGE_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </label>
+
+            {totalPages > 1 && (
+              <div className="page-btns">
+                <button
+                  className="page-btn"
+                  disabled={filters.page <= 1}
+                  onClick={() => setPage(filters.page - 1)}
+                >{t('← Prev')}</button>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const p = i + 1
+                  return (
+                    <button
+                      key={p}
+                      className={`page-btn${filters.page === p ? ' active' : ''}`}
+                      onClick={() => setPage(p)}
+                    >{p}</button>
+                  )
+                })}
+                {totalPages > 5 && (
+                  <>
+                    <span style={{ fontSize: 11, color: 'var(--muted)', padding: '0 4px' }}>…</span>
+                    <button className="page-btn" onClick={() => setPage(totalPages)}>{totalPages}</button>
+                  </>
+                )}
+                <button
+                  className="page-btn"
+                  disabled={filters.page >= totalPages}
+                  onClick={() => setPage(filters.page + 1)}
+                >{t('Next →')}</button>
+              </div>
+            )}
           </div>
         )}
       </div>

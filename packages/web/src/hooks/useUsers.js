@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './useAuth.jsx'
 import * as api from '../api/admin.js'
 
-const PER_PAGE = 20
+export const PER_PAGE_OPTIONS = [10, 20, 50, 100]
+const DEFAULT_PER_PAGE = 20
 
 export default function useUsers() {
   const { accessToken } = useAuth()
@@ -10,14 +11,14 @@ export default function useUsers() {
   const [total, setTotal]     = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
-  const [filters, setFilters] = useState({ search: '', role: '', status: '', page: 1 })
+  const [filters, setFilters] = useState({ search: '', role: '', status: '', page: 1, perPage: DEFAULT_PER_PAGE })
 
   const load = useCallback(async (f) => {
     if (!accessToken) return
     setLoading(true)
     setError(null)
     try {
-      const res = await api.getUsers(accessToken, { ...f, perPage: PER_PAGE })
+      const res = await api.getUsers(accessToken, f)
       setUsers(res.users)
       setTotal(res.total)
     } catch {
@@ -38,6 +39,10 @@ export default function useUsers() {
     setFilters(f => ({ ...f, page }))
   }
 
+  function setPerPage(perPage) {
+    setFilters(f => ({ ...f, perPage, page: 1 }))
+  }
+
   async function blockUser(id)           { await api.blockUser(accessToken, id);           load(filters) }
   async function unblockUser(id)         { await api.unblockUser(accessToken, id);         load(filters) }
   async function changeRole(id, role)    { await api.changeRole(accessToken, id, role);    load(filters) }
@@ -54,11 +59,11 @@ export default function useUsers() {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u))
   }
 
-  const totalPages = Math.ceil(total / PER_PAGE)
+  const totalPages = Math.max(1, Math.ceil(total / filters.perPage))
 
   return {
     users, total, totalPages, loading, error,
-    filters, updateFilters, setPage,
+    filters, updateFilters, setPage, setPerPage,
     blockUser, unblockUser, changeRole, resetPassword, deleteUser, inviteUser,
     optimisticSetRole,
     reload: () => load(filters),

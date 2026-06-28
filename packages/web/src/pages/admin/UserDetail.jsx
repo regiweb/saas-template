@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import AdminShell from '../../components/admin/AdminShell.jsx'
 import ActivityFeed from '../../components/admin/ActivityFeed.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
+import IdTag from '../../components/admin/IdTag.jsx'
 import Toast from '../../components/admin/Toast.jsx'
 import * as api from '../../api/admin.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
@@ -194,6 +195,9 @@ export default function UserDetail() {
                 <div>
                   <div className="ud-email" style={blocked ? { color: 'var(--txt2)' } : {}}>
                     {user.email}
+                  </div>
+                  <div style={{ margin: '4px 0 8px' }}>
+                    <IdTag id={user.id} />
                   </div>
                   <div className="user-badges">
                     {/* Role badge in header — display-only; selector lives in the Profile card */}

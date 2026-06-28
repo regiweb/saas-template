@@ -762,14 +762,38 @@
 .badge-blocked { background: rgba(239,68,68,0.08);      border: 1px solid rgba(239,68,68,0.2);   color: var(--err); }
 .dropdown { position: relative; display: inline-block; }
 .dropdown-menu { position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surf); border: 1px solid var(--brd); border-radius: var(--r8); padding: 4px; min-width: 160px; z-index: 20; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.dropdown-menu-portal { margin-top: 0; z-index: 100; }
 .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--r4); font-size: 11.5px; color: var(--txt2); cursor: pointer; transition: all 0.1s; }
 .dropdown-item:hover { background: var(--surf-h); color: var(--txt); }
 .dropdown-item.danger { color: var(--err); }
 .dropdown-item.danger:hover { background: rgba(239,68,68,0.06); }
 .dropdown-sep { height: 1px; background: var(--brd); margin: 3px 0; }
-.pagination { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
+.pagination { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
 .page-info { font-size: 10.5px; color: var(--muted); }
 .page-btns { display: flex; align-items: center; gap: 4px; }
+.page-size { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.page-size-label { font-size: 10.5px; color: var(--muted); }
+.page-size-select {
+  font-family: inherit; font-size: 11px; color: var(--txt);
+  background: var(--bg); border: 1px solid var(--brd); border-radius: var(--r8);
+  padding: 3px 6px; cursor: pointer;
+}
+.page-size-select:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
+
+/* Copyable entity id */
+.id-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; line-height: 1;
+  color: var(--muted); background: var(--bg);
+  border: 1px solid var(--brd); border-radius: var(--r8);
+  padding: 2px 5px; cursor: pointer; max-width: 100%;
+  transition: color 0.12s, border-color 0.12s;
+}
+.id-tag:hover { color: var(--txt); border-color: var(--acc); }
+.id-tag:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
+.id-tag-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.id-tag-ico { opacity: 0.7; flex-shrink: 0; }
+.user-id-stack { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; min-width: 0; }
 .page-btn { height: 28px; min-width: 28px; padding: 0 8px; border-radius: var(--r8); background: transparent; border: 1px solid var(--brd); font-size: 11px; color: var(--txt2); cursor: pointer; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
 .page-btn:hover:not(:disabled) { background: var(--surf); color: var(--txt); }
 .page-btn.active { background: var(--acc); border-color: var(--acc); color: #fff; }
@@ -1165,4 +1189,9 @@
   .search-bar  { flex-wrap: wrap; }
   .search-wrap { width: 100%; }
   .sett-field-row { flex-direction: column; }
+  /* Tables scroll horizontally instead of crushing columns. The row dropdown
+     is portaled to <body> (position: fixed), so it is not clipped by this. */
+  .table-wrap  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .users-table { min-width: 620px; }
+  .pagination  { flex-wrap: wrap; gap: 8px; }
 }
