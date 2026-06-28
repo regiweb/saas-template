@@ -139,6 +139,11 @@ export async function updateRole(request, reply) {
   const { id }   = request.params
   const { role } = request.body ?? {}
 
+  // Guard: admin cannot change their own role (prevents self-lockout).
+  // Frontend hides the selector for self; this enforces it server-side too.
+  if (id === request.user.sub)
+    return errReply(reply, 403, 'SELF_ROLE_CHANGE', 'Cannot change your own role')
+
   if (!['admin', 'user'].includes(role))
     return errReply(reply, 400, 'VALIDATION_ERROR', 'role must be admin or user')
 
@@ -166,6 +171,10 @@ export async function toggleBlock(request, reply) {
 
   if (typeof blocked !== 'boolean')
     return errReply(reply, 400, 'VALIDATION_ERROR', 'blocked must be boolean')
+
+  // Guard: admin cannot block their own account (self-lockout).
+  if (blocked && id === request.user.sub)
+    return errReply(reply, 403, 'SELF_BLOCK', 'Cannot block your own account')
 
   let rowCount
   if (blocked) {
@@ -223,7 +232,7 @@ export async function deleteUser(request, reply) {
   const { id } = request.params
 
   if (id === request.user.sub)
-    return errReply(reply, 400, 'SELF_DELETE', 'Cannot delete your own account')
+    return errReply(reply, 403, 'SELF_DELETE', 'Cannot delete your own account')
 
   const { rowCount } = await request.server.db.query(
     'DELETE FROM users WHERE id = $1',
