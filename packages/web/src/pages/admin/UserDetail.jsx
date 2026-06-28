@@ -44,6 +44,7 @@ export default function UserDetail() {
   // Role selector state
   const [pendingRole, setPendingRole]   = useState(null)
   const [roleSaving, setRoleSaving]     = useState(false)
+  const [resetting, setResetting]       = useState(false)
 
   // Guard: admin cannot demote their own account
   const isSelf = !!authUser && authUser.id === id
@@ -130,11 +131,14 @@ export default function UserDetail() {
   }
 
   async function handleReset() {
+    setResetting(true)
     try {
       const res = await api.resetPassword(accessToken, user.id)
-      showToast(`Reset email sent to ${res?.email ?? user.email}`)
+      showToast(`Reset link sent to ${res?.email ?? user.email}`)
     } catch {
       showToast('Failed to send reset email — please try again', 'err')
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -212,7 +216,12 @@ export default function UserDetail() {
                 <button
                   className="abtn sec"
                   onClick={handleReset}
-                >🔑 Reset Password</button>
+                  disabled={resetting}
+                >
+                  {resetting
+                    ? <><span className="spin" style={{ width: 11, height: 11 }} /> Sending…</>
+                    : '🔑 Reset Password'}
+                </button>
                 {!isSelf && (blocked
                   ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}>🔓 Unblock</button>
                   : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}>🔒 Block</button>
