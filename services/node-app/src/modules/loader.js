@@ -64,6 +64,7 @@ export function resolveOrder(mods, enabled = null) {
 export async function loadModules(app, { enabled = null } = {}) {
   const order = resolveOrder(inventory(), enabled)
   const migrationsDirs = []
+  const seedFns = []
 
   for (const m of order) {
     for (const e of (m.env || [])) {
@@ -79,12 +80,22 @@ export async function loadModules(app, { enabled = null } = {}) {
       await app.register(fn, m.prefix ? { prefix: m.prefix } : {})
     }
     if (m.migrations) migrationsDirs.push(join(m.__dir, m.migrations))
+    if (m.seed) {
+      const url = pathToFileURL(join(m.__dir, m.seed)).href
+      const ns = await import(url)
+      const fn = ns.seed ?? ns.default
+      if (typeof fn !== 'function') {
+        throw new Error(`Модуль "${m.name}": seed "${m.seed}" не экспортирует функцию (seed/default)`)
+      }
+      seedFns.push({ name: m.name, fn })
+    }
     app.log.info(`[modules] загружен: ${m.name}${m.prefix ? ' @ ' + m.prefix : ' (util)'}`)
   }
 
   return {
     names: order.map(m => m.name),
     migrationsDirs,
+    seedFns,
     // для GET /api/modules и UI (EZL-US-020): голый список зависимостей
     manifest: order.map(m => ({
       name: m.name,

@@ -4,6 +4,7 @@
   "routes": "./routes.js",
   "export": "authRoutes",
   "migrations": "./migrations",
+  "seed": "./seed.js",
   "requires": [],
   "optional": ["mail"],
   "env": ["APP_SECRET"],

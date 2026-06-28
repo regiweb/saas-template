@@ -32,4 +32,13 @@ app.get('/api/modules', async () => loaded.manifest)
 
 await runMigrations(loaded.migrationsDirs)
 
+// Module seeds run after migrations (idempotent — e.g. initial admin provisioning).
+for (const s of loaded.seedFns) {
+  try {
+    await s.fn(app)
+  } catch (err) {
+    app.log.error({ err, module: s.name }, '[modules] seed failed')
+  }
+}
+
 await app.listen({ port: PORT, host: '0.0.0.0' })
