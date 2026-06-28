@@ -43,6 +43,25 @@ export const deleteUser = (token, id) =>
 export const inviteUser = (token, email, role) =>
   request('/users', token, { method: 'POST', body: JSON.stringify({ email, role }) })
 
+// Fetches the CSV with the auth header (can't use a plain <a href>) and
+// triggers a browser download.
+export async function exportUsers(token) {
+  const res = await fetch(`${BASE}/users/export`, {
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  })
+  if (!res.ok) throw await res.json().catch(() => ({ error: { message: 'Export failed' } }))
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `users-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export const getSettings = (token) =>
   request('/settings', token)
 

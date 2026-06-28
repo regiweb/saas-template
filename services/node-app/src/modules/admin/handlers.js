@@ -289,6 +289,24 @@ export async function inviteUser(request, reply) {
   })
 }
 
+// GET /users/export — CSV of all users (newest first).
+export async function exportUsers(request, reply) {
+  const { rows } = await request.server.db.query(
+    'SELECT id, email, role, status, created_at, last_login FROM users ORDER BY created_at DESC'
+  )
+  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  const header = ['id', 'email', 'role', 'status', 'created_at', 'last_login']
+  const lines = [header.join(',')]
+  for (const r of rows) {
+    lines.push([r.id, r.email, r.role, r.status, r.created_at?.toISOString?.() ?? r.created_at, r.last_login?.toISOString?.() ?? r.last_login ?? ''].map(esc).join(','))
+  }
+  const stamp = new Date().toISOString().slice(0, 10)
+  return reply
+    .header('Content-Type', 'text/csv; charset=utf-8')
+    .header('Content-Disposition', `attachment; filename="users-${stamp}.csv"`)
+    .send(lines.join('\r\n'))
+}
+
 /* ─── Sessions ─────────────────────────────────────────────────────── */
 
 // Drop session rows + their refresh tokens (id === refresh jti).

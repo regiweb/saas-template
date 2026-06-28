@@ -2,7 +2,7 @@ import { requireAdmin } from './middleware.js'
 import {
   getDashboard, listUsers, getUserById, updateRole,
   toggleBlock, adminResetPassword, deleteUser, inviteUser,
-  getSettings, saveSettings,
+  getSettings, saveSettings, exportUsers,
   listSessions, revokeSession, revokeUserSessions, revokeBulkSessions,
 } from './handlers.js'
 
@@ -11,6 +11,7 @@ export async function adminRoutes(fastify) {
 
   fastify.get('/dashboard',               pre, getDashboard)
   fastify.get('/users',                   pre, listUsers)
+  fastify.get('/users/export',            pre, exportUsers)
   fastify.post('/users',                  pre, inviteUser)
   fastify.get('/users/:id',               pre, getUserById)
   fastify.put('/users/:id/role',          pre, updateRole)
