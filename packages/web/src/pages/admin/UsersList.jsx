@@ -39,19 +39,22 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onCh
         <div className="dropdown-menu">
           <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}>👁 View profile</div>
           <div className="dropdown-sep" />
-          {user.status === 'blocked'
+          {!isSelf && (user.status === 'blocked'
             ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}>🔓 Unblock user</div>
             : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}>🔒 Block user</div>
-          }
-          {/* Role change — hidden for own account to prevent self-lockout */}
+          )}
           {!isSelf && (
             user.role === 'user'
               ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}>👑 Make Admin</div>
               : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}>👤 Make User</div>
           )}
           <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}>🔑 Reset password</div>
-          <div className="dropdown-sep" />
-          <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>🗑 Delete</div>
+          {!isSelf && (
+            <>
+              <div className="dropdown-sep" />
+              <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>🗑 Delete</div>
+            </>
+          )}
         </div>
       )}
     </div>
