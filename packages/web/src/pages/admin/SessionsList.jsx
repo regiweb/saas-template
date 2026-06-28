@@ -24,23 +24,6 @@ function fmtRelative(iso) {
   return fmtDate(iso)
 }
 
-function parseUA(ua) {
-  if (!ua) return 'Browser'
-  let browser = 'Browser'
-  if (/Edg\//.test(ua))     browser = 'Edge'
-  else if (/Firefox\//.test(ua)) browser = 'Firefox'
-  else if (/Chrome\//.test(ua))  browser = 'Chrome'
-  else if (/Safari\//.test(ua))  browser = 'Safari'
-  let os = ''
-  if (/iPhone/.test(ua))              os = 'iOS'
-  else if (/iPad/.test(ua))           os = 'iPadOS'
-  else if (/Android/.test(ua))        os = 'Android'
-  else if (/Windows/.test(ua))        os = 'Windows'
-  else if (/Macintosh|Mac OS X/.test(ua)) os = 'macOS'
-  else if (/Linux/.test(ua))          os = 'Linux'
-  return os ? `${browser} · ${os}` : browser
-}
-
 /* ─── Role filter config ─────────────────────────────────────────── */
 
 const ROLE_FILTERS = [
@@ -251,7 +234,6 @@ export default function SessionsList() {
                   <th>User</th>
                   <th>Role</th>
                   <th>IP</th>
-                  <th>Device</th>
                   <th>Created</th>
                   <th>Last seen</th>
                   <th />
@@ -268,7 +250,6 @@ export default function SessionsList() {
                     </td>
                     <td><div className="skel" style={{ height: 11, width: 48 }} /></td>
                     <td><div className="skel" style={{ height: 11, width: 90 }} /></td>
-                    <td><div className="skel" style={{ height: 11, width: 110 + (i % 2) * 15 }} /></td>
                     <td><div className="skel" style={{ height: 11, width: 75 }} /></td>
                     <td><div className="skel" style={{ height: 11, width: 60 }} /></td>
                     <td />
@@ -309,7 +290,6 @@ export default function SessionsList() {
                   <th>User</th>
                   <th>Role</th>
                   <th>IP</th>
-                  <th>Device</th>
                   <th>Created</th>
                   <th>Last seen</th>
                   <th />
@@ -356,7 +336,6 @@ export default function SessionsList() {
                     </td>
 
                     <td><span className="date-cell">{s.ip}</span></td>
-                    <td><span className="date-cell">{parseUA(s.userAgent)}</span></td>
                     <td><span className="date-cell">{fmtDate(s.createdAt)}</span></td>
                     <td><span className="date-cell">{fmtRelative(s.lastSeenAt)}</span></td>
 

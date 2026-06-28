@@ -47,7 +47,7 @@ const mockSettings = {
   maxLoginAttempts: 5,
 }
 
-export async function getDashboard() {
+export async function getDashboard(_token) {
   await delay(700)
   return {
     totalUsers: mockUsers.length,
@@ -60,7 +60,7 @@ export async function getDashboard() {
   }
 }
 
-export async function getUsers({ search = '', role = '', status = '', page = 1, perPage = 20 } = {}) {
+export async function getUsers(_token, { search = '', role = '', status = '', page = 1, perPage = 20 } = {}) {
   await delay(500)
   let list = [...mockUsers]
   if (search) list = list.filter(u => u.email.toLowerCase().includes(search.toLowerCase()))
@@ -71,47 +71,47 @@ export async function getUsers({ search = '', role = '', status = '', page = 1, 
   return { users: list.slice(offset, offset + perPage), total, page, perPage }
 }
 
-export async function getUserById(id) {
+export async function getUserById(_token, id) {
   await delay(400)
   const user = mockUsers.find(u => u.id === id)
   if (!user) return Promise.reject({ error: { code: 'NOT_FOUND', message: 'User not found' } })
   return { user, activity: mockUserActivity[id] ?? [] }
 }
 
-export async function blockUser(id) {
+export async function blockUser(_token, id) {
   await delay(400)
   const user = mockUsers.find(u => u.id === id)
   if (user) { user.status = 'blocked'; user.blockedAt = new Date().toISOString() }
   return { ok: true }
 }
 
-export async function unblockUser(id) {
+export async function unblockUser(_token, id) {
   await delay(400)
   const user = mockUsers.find(u => u.id === id)
   if (user) { user.status = 'active'; delete user.blockedAt }
   return { ok: true }
 }
 
-export async function changeRole(id, role) {
+export async function changeRole(_token, id, role) {
   await delay(400)
   const user = mockUsers.find(u => u.id === id)
   if (user) user.role = role
   return { ok: true }
 }
 
-export async function resetPassword(id) {
+export async function resetPassword(_token, id) {
   await delay(400)
   const user = mockUsers.find(u => u.id === id)
   return { ok: true, email: user?.email }
 }
 
-export async function deleteUser(id) {
+export async function deleteUser(_token, id) {
   await delay(400)
   mockUsers = mockUsers.filter(u => u.id !== id)
   return { ok: true }
 }
 
-export async function inviteUser(email, role) {
+export async function inviteUser(_token, email, role) {
   await delay(500)
   if (mockUsers.find(u => u.email === email)) {
     return Promise.reject({ error: { code: 'USER_EXISTS', message: 'Email already registered' } })
@@ -121,12 +121,12 @@ export async function inviteUser(email, role) {
   return { ok: true, user }
 }
 
-export async function getSettings() {
+export async function getSettings(_token) {
   await delay(500)
   return { ...mockSettings }
 }
 
-export async function saveSettings(updates) {
+export async function saveSettings(_token, updates) {
   await delay(600)
   Object.assign(mockSettings, updates)
   return { ...mockSettings }

@@ -130,8 +130,12 @@ export default function UserDetail() {
   }
 
   async function handleReset() {
-    const res = await api.resetPassword(accessToken, user.id)
-    showToast(`Reset email sent to ${res.email ?? user.email}`)
+    try {
+      const res = await api.resetPassword(accessToken, user.id)
+      showToast(`Reset email sent to ${res?.email ?? user.email}`)
+    } catch {
+      showToast('Failed to send reset email — please try again', 'err')
+    }
   }
 
   const blocked = user?.status === 'blocked'
@@ -207,7 +211,6 @@ export default function UserDetail() {
               <div className="action-bar">
                 <button
                   className="abtn sec"
-                  disabled={blocked}
                   onClick={handleReset}
                 >🔑 Reset Password</button>
                 {!isSelf && (blocked

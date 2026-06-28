@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { AuthPage, AuthNavbar, AuthBody } from '../components/ui/AuthLayout.jsx'
@@ -12,8 +12,16 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const [pendingNav, setPendingNav] = useState(null)
+  const { signIn, user } = useAuth()
   const navigate = useNavigate()
+
+  // Navigate only after user state is committed to avoid race condition
+  useEffect(() => {
+    if (user && pendingNav) {
+      navigate(pendingNav, { replace: true })
+    }
+  }, [user, pendingNav, navigate])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -21,7 +29,7 @@ export default function Login() {
     setLoading(true)
     try {
       const data = await signIn(email, password)
-      navigate(data?.user?.role === 'admin' ? '/admin' : '/welcome')
+      setPendingNav(data?.user?.role === 'admin' ? '/admin' : '/welcome')
     } catch (err) {
       setError(err?.error?.message || 'Something went wrong. Please try again.')
       setLoading(false)

@@ -9,7 +9,10 @@ export default function useAdminDashboard() {
   const [error, setError]     = useState(null)
 
   const load = useCallback(async () => {
-    if (!accessToken) return
+    if (!accessToken) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
     setError(null)
     try {
