@@ -74,10 +74,10 @@ export default function AdminShell({ children }) {
             <button
               className="collapse-btn"
               onClick={() => setCollapsed(c => !c)}
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={collapsed ? t('Expand sidebar') : t('Collapse sidebar')}
             >
               <span>{collapsed ? '›' : '‹'}</span>
-              <span className="clabel" style={{ fontSize: '10px' }}>Collapse</span>
+              <span className="clabel" style={{ fontSize: '10px' }}>{t('Collapse')}</span>
             </button>
           </div>
         </aside>
