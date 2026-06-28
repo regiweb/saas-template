@@ -11,5 +11,6 @@ export const NAV_ITEMS = [
   { icon: '🏠', label: 'Dashboard', path: '/welcome',         end: true,  roles: null },
   { icon: '📊', label: 'Admin',     path: '/admin',           end: true,  roles: ['admin'] },
   { icon: '👥', label: 'Users',     path: '/admin/users',     end: false, roles: ['admin'] },
+  { icon: '🖥', label: 'Sessions',  path: '/admin/sessions',  end: false, roles: ['admin'] },
   { icon: '⚙️',  label: 'Settings', path: '/admin/settings',  end: false, roles: ['admin'] },
 ]
