@@ -1,33 +1,12 @@
-/**
- * Welcome — dashboard page for any authenticated user (EZL-US-012).
- * Rendered inside AppLayout; does not need its own nav shell.
- */
 import { useAuth } from '../hooks/useAuth.jsx'
-
-// Skeleton shown defensively if user is null post-ProtectedRoute (should not happen in practice)
-function DashboardSkeleton() {
-  return (
-    <AuthPage>
-      <AuthNavbar />
-      <AuthBody>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="skel" style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto' }} />
-          <div className="skel" style={{ height: 18, width: '70%', margin: '0 auto', borderRadius: 4 }} />
-          <div className="skel" style={{ height: 14, width: '35%', margin: '0 auto', borderRadius: 999 }} />
-          <div className="skel" style={{ height: 88, width: '100%', borderRadius: 12 }} />
-          <div className="skel" style={{ height: 1, width: '100%' }} />
-          <div className="skel" style={{ height: 40, width: '100%', borderRadius: 8 }} />
-          <div className="skel" style={{ height: 40, width: '100%', borderRadius: 8 }} />
-        </div>
-      </AuthBody>
-    </AuthPage>
-  )
-}
+import { useNavigate } from 'react-router-dom'
+import { Button } from '../components/ui/Button.jsx'
 
 export default function Welcome() {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
-  if (!user) return <DashboardSkeleton />
+  if (!user) return null
 
   const initials = user.email[0].toUpperCase()
 
@@ -64,6 +43,17 @@ export default function Welcome() {
                   {new Date(user.createdAt).toLocaleDateString()}
                 </span>
               </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+            <Button variant="s" type="button" onClick={() => navigate('/forgot-password')}>
+              🔑 Change Password
+            </Button>
+            {user?.role === 'admin' && (
+              <Button variant="p" type="button" onClick={() => navigate('/admin')}>
+                ⚙ Admin Dashboard
+              </Button>
             )}
           </div>
 
