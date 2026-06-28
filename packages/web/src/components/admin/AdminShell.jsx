@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.jsx'
-import MobileDrawer from './MobileDrawer.jsx'
-
-const NAV_ITEMS = [
-  { icon: '📊', label: 'Dashboard', path: '/admin',           end: true },
-  { icon: '👥', label: 'Users',     path: '/admin/users',     end: false },
-  { icon: '🖥', label: 'Sessions',  path: '/admin/sessions',  end: false },
-  { icon: '⚙️', label: 'Settings',  path: '/admin/settings',  end: false },
-]
+import { NAV_ITEMS } from '../../nav.js'
+import Drawer from '../ui/Drawer.jsx'
 
 export default function AdminShell({ children }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -25,6 +19,11 @@ export default function AdminShell({ children }) {
   }
 
   const initials = user?.email?.[0]?.toUpperCase() ?? 'A'
+
+  // Single source of nav (nav.js), filtered by current user role
+  const navItems = NAV_ITEMS.filter(
+    item => !item.roles || item.roles.includes(user?.role)
+  )
 
   return (
     <div className="admin-shell">
@@ -52,7 +51,7 @@ export default function AdminShell({ children }) {
       <div className="admin-body">
         <aside className={`admin-sidebar${collapsed ? ' collapsed' : ''}`}>
           <nav className="sidebar-nav">
-            {NAV_ITEMS.map(item => (
+            {navItems.map(item => (
               <NavLink
                 key={item.path}
                 to={item.path}
@@ -88,9 +87,10 @@ export default function AdminShell({ children }) {
       </div>
 
       {drawerOpen && (
-        <MobileDrawer
+        <Drawer
+          id="admin-nav-drawer"
           user={user}
-          navItems={NAV_ITEMS}
+          navItems={navItems}
           onClose={() => setDrawerOpen(false)}
           onSignOut={handleSignOut}
         />

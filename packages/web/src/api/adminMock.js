@@ -51,8 +51,8 @@ export async function getDashboard(_token) {
   await delay(700)
   return {
     totalUsers: mockUsers.length,
-    newUsersWeek: 12,
-    activeSessions: 47,
+    newUsersWeek: 3,
+    activeSessions: INITIAL_SESSIONS.length,
     failedLogins: 23,
     failedDelta: 8,
     uptime: '99.8%',
