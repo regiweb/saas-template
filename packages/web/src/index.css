@@ -84,36 +84,57 @@
 
   /* Logo */
   .logo-wrap {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
   }
-
-  .logo-mark {
-    background: var(--acc);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--glow);
-    flex-shrink: 0;
-    color: #fff;
-    font-size: 13px;
-    border-radius: var(--r4);
-  }
-
-  .logo-mark-sm { width: 24px; height: 24px; }
-  .logo-mark-md { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
 
   .logo-text {
     font-family: 'Unbounded', sans-serif;
     font-weight: 700;
     color: var(--txt);
+    white-space: nowrap;
+    line-height: 1;
+    letter-spacing: -0.01em;
   }
 
-  .logo-text-sm { font-size: 12px; }
-  .logo-text-md { font-size: 14px; }
+  .logo-ez { color: var(--teal); }
 
-  .logo-text .accent { color: var(--teal); }
+  .logo-sm .logo-text { font-size: 12px; }
+  .logo-md .logo-text { font-size: 16px; }
+
+  /* Calm blinking caret — the brand's signature motion */
+  .logo-caret {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    margin-left: 0.12em;
+    vertical-align: -0.12em;
+    background: var(--teal);
+    border-radius: 1px;
+    box-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
+    animation: logo-blink 1.05s steps(1) infinite;
+  }
+
+  @keyframes logo-blink {
+    0%, 55%   { opacity: 1; }
+    56%, 100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-caret { animation: none; opacity: 1; }
+  }
+
+  .logo-badge {
+    padding: 2px 8px;
+    background: var(--surf);
+    border: 1px solid var(--brd);
+    border-radius: var(--rpill);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--txt2);
+  }
 
   /* Auth header */
   .auth-logo-row {

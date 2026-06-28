@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { NAV_ITEMS } from '../../nav.js'
 import Drawer from '../ui/Drawer.jsx'
+import { Logo } from '../ui/Logo.jsx'
 
 export default function AdminShell({ children }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -28,11 +29,7 @@ export default function AdminShell({ children }) {
   return (
     <div className="admin-shell">
       <header className="admin-navbar">
-        <div className="nav-logo">
-          <div className="nav-mark">⚡</div>
-          <div className="nav-text">EZ<span>Launch</span></div>
-          <span className="nav-badge">ADMIN</span>
-        </div>
+        <Logo size="sm" badge="ADMIN" />
         <div className="nav-right">
           <button className="nav-icon-btn" aria-label="Notifications">🔔</button>
           <div className="avatar">{initials}</div>

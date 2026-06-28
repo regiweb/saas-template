@@ -16,6 +16,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { NAV_ITEMS } from '../../nav.js'
 import Drawer from './Drawer.jsx'
+import { Logo } from './Logo.jsx'
 
 export default function AppLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -54,12 +55,7 @@ export default function AppLayout({ children }) {
 
       {/* ── Top navbar ─────────────────────────────────── */}
       <header className="app-navbar">
-        <div className="app-brand">
-          <span className="app-brand-mark" aria-hidden="true">⚡</span>
-          <span className="app-brand-text">
-            EZ<span className="app-brand-accent">Launch</span>
-          </span>
-        </div>
+        <Logo size="sm" />
 
         <div className="app-navbar-right">
           <div className="app-avatar" aria-hidden="true">{initials}</div>
