@@ -35,6 +35,9 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onCh
     <div className="dropdown" ref={ref}>
       <button
         className="actions-btn"
+        aria-label={t('User actions')}
+        aria-haspopup="menu"
+        aria-expanded={open}
         onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
       >···</button>
       {open && (
