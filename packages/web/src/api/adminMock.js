@@ -132,7 +132,7 @@ export async function saveSettings(_token, updates) {
   return { ...mockSettings }
 }
 
-let mockSessions = [
+const INITIAL_SESSIONS = [
   {
     id: 'ses_1',
     userId: 'usr_admin_1',
@@ -201,8 +201,13 @@ let mockSessions = [
   },
 ]
 
+// Module-level working copy — rebuilt on every getSessions() so depleted state
+// (e.g. after revoking all sessions + re-login in SPA) never causes empty list.
+let mockSessions = INITIAL_SESSIONS.map(s => ({ ...s }))
+
 export async function getSessions(_token) {
   await delay(500)
+  mockSessions = INITIAL_SESSIONS.map(s => ({ ...s }))
   return [...mockSessions]
 }
 
