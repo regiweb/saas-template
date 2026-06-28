@@ -20,17 +20,30 @@ function isValidEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
 }
 
-async function issueTokens(server, user) {
+async function issueTokens(request, user, { createdAt = null } = {}) {
+  const server = request.server
+  const jti = uid('rtk')
   const accessToken = server.jwt.sign(
-    { sub: user.id, email: user.email, role: user.role },
+    { sub: user.id, email: user.email, role: user.role, sid: jti },
     { expiresIn: '15m' }
   )
-  const jti = uid('rtk')
   const refreshToken = server.jwt.sign(
     { sub: user.id, jti },
     { expiresIn: '7d' }
   )
   await server.redis.set(`rtk:${jti}`, user.id, 'EX', REFRESH_TTL_SEC)
+
+  // Best-effort session record — must never block authentication.
+  try {
+    await server.db.query(
+      `INSERT INTO sessions (id, user_id, ip, user_agent, created_at, last_seen_at)
+       VALUES ($1, $2, $3, $4, COALESCE($5, NOW()), NOW())`,
+      [jti, user.id, request.ip, (request.headers['user-agent'] || '').slice(0, 300), createdAt]
+    )
+  } catch (err) {
+    server.log.warn({ err }, 'session record insert failed')
+  }
+
   return { accessToken, refreshToken }
 }
 
@@ -55,7 +68,7 @@ export async function register(request, reply) {
     [uid('usr'), normalEmail, hash, 'user']
   )
 
-  const tokens = await issueTokens(request.server, user)
+  const tokens = await issueTokens(request, user)
   return reply.code(201).send({
     user: { id: user.id, email: user.email, role: user.role, createdAt: user.created_at },
     ...tokens,
@@ -87,7 +100,7 @@ export async function login(request, reply) {
     [user.id, 'login', 'Logged in', `IP ${request.ip}`]
   ).catch(() => {})  // non-fatal: table may not exist yet on first login before migration
 
-  const tokens = await issueTokens(request.server, user)
+  const tokens = await issueTokens(request, user)
   return reply.send({
     user: { id: user.id, email: user.email, role: user.role },
     ...tokens,
@@ -102,6 +115,7 @@ export async function logout(request, reply) {
   try {
     const payload = request.server.jwt.verify(refreshToken)
     await request.server.redis.del(`rtk:${payload.jti}`)
+    await request.server.db.query('DELETE FROM sessions WHERE id = $1', [payload.jti]).catch(() => {})
   } catch {
     return errReply(reply, 401, 'INVALID_TOKEN', 'Refresh token invalid or expired')
   }
@@ -132,6 +146,10 @@ export async function refresh(request, reply) {
     return errReply(reply, 401, 'INVALID_TOKEN', 'Token invalidated — please log in again')
   }
 
+  // Preserve original session start time across token rotation, then drop the old row.
+  const { rows: oldSession } = await request.server.db.query(
+    'SELECT created_at FROM sessions WHERE id = $1', [payload.jti]
+  )
   await request.server.redis.del(`rtk:${payload.jti}`)
 
   const { rows } = await request.server.db.query(
@@ -139,7 +157,9 @@ export async function refresh(request, reply) {
   )
   if (!rows[0]) return errReply(reply, 401, 'INVALID_TOKEN', 'User not found')
 
-  return reply.send(await issueTokens(request.server, rows[0]))
+  const tokens = await issueTokens(request, rows[0], { createdAt: oldSession[0]?.created_at ?? null })
+  await request.server.db.query('DELETE FROM sessions WHERE id = $1', [payload.jti]).catch(() => {})
+  return reply.send(tokens)
 }
 
 export async function forgotPassword(request, reply) {

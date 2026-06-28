@@ -57,3 +57,6 @@ export const revokeSession = (token, id) =>
 
 export const revokeAllSessions = (token, userId) =>
   request(`/sessions?userId=${encodeURIComponent(userId)}`, token, { method: 'DELETE' })
+
+export const revokeBulkSessions = (token, ids) =>
+  request('/sessions/revoke', token, { method: 'POST', body: JSON.stringify({ ids }) })

@@ -42,9 +42,10 @@ async function auditLog(db, { userId, actorId, type, event, meta }) {
 
 export async function getDashboard(request, reply) {
   const db = request.server.db
-  const [totalRes, newWeekRes, activityRes] = await Promise.all([
+  const [totalRes, newWeekRes, sessionsRes, activityRes] = await Promise.all([
     db.query('SELECT COUNT(*)::int AS n FROM users'),
     db.query("SELECT COUNT(*)::int AS n FROM users WHERE created_at > NOW() - INTERVAL '7 days'"),
+    db.query('SELECT COUNT(*)::int AS n FROM sessions'),
     db.query(
       'SELECT type, event, meta, created_at FROM user_audit_log ORDER BY created_at DESC LIMIT 20'
     ),
@@ -53,7 +54,7 @@ export async function getDashboard(request, reply) {
   return reply.send({
     totalUsers:    totalRes.rows[0].n,
     newUsersWeek:  newWeekRes.rows[0].n,
-    activeSessions: 0,
+    activeSessions: sessionsRes.rows[0].n,
     failedLogins:  0,
     failedDelta:   0,
     uptime:        '99.9%',
@@ -286,6 +287,63 @@ export async function inviteUser(request, reply) {
     ok:   true,
     user: { id: user.id, email: user.email, role: user.role, status: user.status, createdAt: user.created_at },
   })
+}
+
+/* ─── Sessions ─────────────────────────────────────────────────────── */
+
+// Drop session rows + their refresh tokens (id === refresh jti).
+async function purgeSessions(server, ids) {
+  if (!ids.length) return
+  await server.db.query('DELETE FROM sessions WHERE id = ANY($1)', [ids])
+  await Promise.all(ids.map(id => server.redis.del(`rtk:${id}`)))
+}
+
+export async function listSessions(request, reply) {
+  const { rows } = await request.server.db.query(
+    `SELECT s.id, s.user_id, s.ip, s.user_agent, s.created_at, s.last_seen_at, u.email, u.role
+       FROM sessions s JOIN users u ON u.id = s.user_id
+      ORDER BY s.last_seen_at DESC`
+  )
+  const currentSid = request.user.sid
+  return reply.send(rows.map(r => ({
+    id:         r.id,
+    userId:     r.user_id,
+    email:      r.email,
+    role:       r.role,
+    ip:         r.ip ?? '—',
+    userAgent:  r.user_agent ?? '',
+    createdAt:  r.created_at,
+    lastSeenAt: r.last_seen_at,
+    current:    r.id === currentSid,
+  })))
+}
+
+// DELETE /sessions/:id — revoke a single session.
+export async function revokeSession(request, reply) {
+  const { id } = request.params
+  const { rowCount } = await request.server.db.query('DELETE FROM sessions WHERE id = $1', [id])
+  await request.server.redis.del(`rtk:${id}`)
+  if (!rowCount) return errReply(reply, 404, 'NOT_FOUND', 'Session not found')
+  return reply.send({ ok: true })
+}
+
+// DELETE /sessions?userId=… — revoke every session for one user.
+export async function revokeUserSessions(request, reply) {
+  const { userId } = request.query
+  if (!userId) return errReply(reply, 400, 'VALIDATION_ERROR', 'userId is required')
+  const { rows } = await request.server.db.query('SELECT id FROM sessions WHERE user_id = $1', [userId])
+  await purgeSessions(request.server, rows.map(r => r.id))
+  await request.server.redis.set(`user_revoked:${userId}`, Date.now(), 'EX', REFRESH_TTL_SEC)
+  return reply.send({ ok: true, count: rows.length })
+}
+
+// POST /sessions/revoke { ids } — bulk revoke selected sessions.
+export async function revokeBulkSessions(request, reply) {
+  const { ids } = request.body ?? {}
+  if (!Array.isArray(ids) || !ids.length)
+    return errReply(reply, 400, 'VALIDATION_ERROR', 'ids[] is required')
+  await purgeSessions(request.server, ids)
+  return reply.send({ ok: true, count: ids.length })
 }
 
 export async function getSettings(request, reply) {

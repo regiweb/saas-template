@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './useAuth.jsx'
-// TODO: switch to '../api/admin.js' when sessions backend ships
-import * as api from '../api/adminMock.js'
+import * as api from '../api/admin.js'
 
 export default function useSessions() {
   const { accessToken } = useAuth()

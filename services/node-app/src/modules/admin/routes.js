@@ -3,6 +3,7 @@ import {
   getDashboard, listUsers, getUserById, updateRole,
   toggleBlock, adminResetPassword, deleteUser, inviteUser,
   getSettings, saveSettings,
+  listSessions, revokeSession, revokeUserSessions, revokeBulkSessions,
 } from './handlers.js'
 
 export async function adminRoutes(fastify) {
@@ -16,6 +17,10 @@ export async function adminRoutes(fastify) {
   fastify.put('/users/:id/block',         pre, toggleBlock)
   fastify.post('/users/:id/reset-password', pre, adminResetPassword)
   fastify.delete('/users/:id',            pre, deleteUser)
+  fastify.get('/sessions',                pre, listSessions)
+  fastify.post('/sessions/revoke',        pre, revokeBulkSessions)
+  fastify.delete('/sessions/:id',         pre, revokeSession)
+  fastify.delete('/sessions',             pre, revokeUserSessions)
   fastify.get('/settings',                pre, getSettings)
   fastify.put('/settings',                pre, saveSettings)
 }
