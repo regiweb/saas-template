@@ -210,11 +210,13 @@ export default function UserDetail() {
                   disabled={blocked}
                   onClick={handleReset}
                 >🔑 Reset Password</button>
-                {blocked
+                {!isSelf && (blocked
                   ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}>🔓 Unblock</button>
                   : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}>🔒 Block</button>
-                }
-                <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}>🗑 Delete</button>
+                )}
+                {!isSelf && (
+                  <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}>🗑 Delete</button>
+                )}
               </div>
             </div>
           </div>
@@ -250,7 +252,7 @@ export default function UserDetail() {
                                 className="sett-select"
                                 value={pendingRole ?? user.role}
                                 onChange={e => setPendingRole(e.target.value)}
-                                disabled={blocked || roleSaving}
+                                disabled={roleSaving}
                                 style={{ fontSize: 11, minWidth: 90 }}
                               >
                                 {PREDEFINED_ROLES.map(r => (
