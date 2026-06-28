@@ -73,6 +73,7 @@
   .auth-navbar {
     display: flex;
     align-items: center;
+    gap: 14px;
     height: 52px;
     padding: 0 20px;
     border-bottom: 1px solid var(--brd);
@@ -113,16 +114,35 @@
     background: var(--teal);
     border-radius: 1px;
     box-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
-    animation: logo-blink 1.05s steps(1) infinite;
+    animation: logo-blink 1.05s steps(1) infinite; /* fallback */
   }
+
+  /* Blink variations — Logo picks one at random per mount (EZL-US-021).
+     Mix of hard/soft easing and fast/slow timing for subtle variety. */
+  .logo-caret.cb1 { animation: logo-blink 1.05s steps(1) infinite; }        /* classic */
+  .logo-caret.cb2 { animation: logo-blink 0.72s steps(1) infinite; }        /* fast */
+  .logo-caret.cb3 { animation: logo-blink 1.6s  steps(1) infinite; }        /* slow */
+  .logo-caret.cb4 { animation: logo-blink-soft 1.3s ease-in-out infinite; } /* soft */
+  .logo-caret.cb5 { animation: logo-blink-soft 0.9s ease-in-out infinite; } /* soft fast */
+  .logo-caret.cb6 { animation: logo-blink-soft 2.1s ease-in-out infinite; } /* soft slow */
+  .logo-caret.cb7 { animation: logo-blink-pulse 1.8s ease-in-out infinite; }/* gentle pulse */
 
   @keyframes logo-blink {
     0%, 55%   { opacity: 1; }
     56%, 100% { opacity: 0; }
   }
+  @keyframes logo-blink-soft {
+    0%, 40%  { opacity: 1; }
+    72%, 88% { opacity: 0; }
+    100%     { opacity: 1; }
+  }
+  @keyframes logo-blink-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.28; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
-    .logo-caret { animation: none; opacity: 1; }
+    .logo-caret { animation: none !important; opacity: 1; }
   }
 
   .logo-badge {
