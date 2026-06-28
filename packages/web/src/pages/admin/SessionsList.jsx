@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AdminShell from '../../components/admin/AdminShell.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import Toast from '../../components/admin/Toast.jsx'
 import useSessions from '../../hooks/useSessions.js'
+import { useAuth } from '../../hooks/useAuth.jsx'
 
 /* ─── Formatters ─────────────────────────────────────────────────── */
 
@@ -83,6 +85,8 @@ function SelfRevokeModal({ session, countdown, onConfirm, onCancel, loading }) {
 /* ─── Main component ─────────────────────────────────────────────── */
 
 export default function SessionsList() {
+  const { signOut } = useAuth()
+  const navigate = useNavigate()
   const {
     sessions, loading, error,
     revokeSession, revokeAllForUser, revokeBulkSessions, reload,
@@ -160,7 +164,12 @@ export default function SessionsList() {
     if (!confirm) return
     setActionLoading(true)
     try {
-      if (confirm.type === 'one' || confirm.type === 'self') {
+      if (confirm.type === 'self') {
+        await revokeSession(confirm.session.id)
+        await signOut()
+        navigate('/login', { replace: true })
+        return
+      } else if (confirm.type === 'one') {
         await revokeSession(confirm.session.id)
         showToast(`Session for ${confirm.session.email} revoked`)
       } else if (confirm.type === 'all') {
