@@ -48,3 +48,12 @@ export const getSettings = (token) =>
 
 export const saveSettings = (token, updates) =>
   request('/settings', token, { method: 'PUT', body: JSON.stringify(updates) })
+
+export const getSessions = (token) =>
+  request('/sessions', token)
+
+export const revokeSession = (token, id) =>
+  request(`/sessions/${id}`, token, { method: 'DELETE' })
+
+export const revokeAllSessions = (token, userId) =>
+  request(`/sessions?userId=${encodeURIComponent(userId)}`, token, { method: 'DELETE' })
