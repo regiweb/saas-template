@@ -16,13 +16,13 @@
   --muted:  #52525B;
 
   --acc:    #0D9488;
-  --acc-h:  #14B8A6;
+  --acc-h:  #2DD4BF;
   --acc-s:  rgba(13,148,136,0.12);
   --glow:   0 0 20px rgba(13,148,136,0.25);
 
-  --ok:     #22C55E;
-  --err:    #EF4444;
-  --warn:   #F59E0B;
+  --ok:     #4ADE80;
+  --err:    #F87171;
+  --warn:   #FB923C;
   --teal:   #2DD4BF;
 
   --r4:     4px;
