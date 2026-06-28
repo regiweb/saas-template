@@ -1,7 +1,13 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AdminShell from '../../components/admin/AdminShell.jsx'
 import MetricCard from '../../components/admin/MetricCard.jsx'
 import ActivityFeed from '../../components/admin/ActivityFeed.jsx'
+import InviteModal from '../../components/admin/InviteModal.jsx'
+import Toast from '../../components/admin/Toast.jsx'
 import useAdminDashboard from '../../hooks/useAdminDashboard.js'
+import { useAuth } from '../../hooks/useAuth.jsx'
+import * as api from '../../api/admin.js'
 import { useT } from '../../i18n/index.jsx'
 
 function SkelMetric() {
@@ -29,9 +35,34 @@ function SkelFeedItem() {
 
 export default function AdminDashboard() {
   const { data, loading, error, retry } = useAdminDashboard()
+  const { accessToken } = useAuth()
+  const navigate = useNavigate()
   const t = useT()
 
+  const [showInvite, setShowInvite] = useState(false)
+  const [exporting, setExporting]   = useState(false)
+  const [toast, setToast]           = useState(null)
+
   const isEmpty = !loading && !error && data?.totalUsers === 0
+
+  async function handleExport() {
+    if (exporting) return
+    setExporting(true)
+    try {
+      await api.exportUsers(accessToken)
+      setToast({ message: t('Users exported'), variant: 'ok' })
+    } catch (ex) {
+      setToast({ message: ex?.error?.message ?? t('Export failed'), variant: 'err' })
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function handleInvite(email, role) {
+    await api.inviteUser(accessToken, email, role)
+    setToast({ message: t('Invite sent to {email}', { email }), variant: 'ok' })
+    retry()  // refresh metrics + activity after adding a user
+  }
 
   return (
     <AdminShell>
@@ -48,9 +79,11 @@ export default function AdminDashboard() {
         {!loading && (
           <div className="header-actions">
             {!error && !isEmpty && (
-              <button className="btn-sm sec">{t('📤 Export')}</button>
+              <button className="btn-sm sec" onClick={handleExport} disabled={exporting}>
+                {exporting ? t('Exporting…') : t('📤 Export')}
+              </button>
             )}
-            <button className="btn-sm pri">{t('+ Create User')}</button>
+            <button className="btn-sm pri" onClick={() => setShowInvite(true)}>{t('+ Create User')}</button>
           </div>
         )}
       </div>
@@ -156,7 +189,9 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="action-list">
-                <div className="action-item">
+                <div className="action-item" role="button" tabIndex={0}
+                  onClick={() => setShowInvite(true)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowInvite(true) } }}>
                   <div className="action-ico ico-teal">👤</div>
                   <div>
                     <div className="action-name">{t('Create User')}</div>
@@ -164,11 +199,13 @@ export default function AdminDashboard() {
                   </div>
                   <span className="action-arr">›</span>
                 </div>
-                <div className="action-item">
+                <div className="action-item" role="button" tabIndex={0}
+                  onClick={handleExport}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleExport() } }}>
                   <div className="action-ico ico-blue">📤</div>
                   <div>
                     <div className="action-name">{t('Export Users')}</div>
-                    <div className="action-desc">{t('Download CSV of all accounts')}</div>
+                    <div className="action-desc">{exporting ? t('Exporting…') : t('Download CSV of all accounts')}</div>
                   </div>
                   <span className="action-arr">›</span>
                 </div>
@@ -177,6 +214,13 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {showInvite && (
+        <InviteModal onClose={() => setShowInvite(false)} onInvite={handleInvite} />
+      )}
+      {toast && (
+        <Toast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />
+      )}
     </AdminShell>
   )
 }
