@@ -1,9 +1,11 @@
 import { useAuth } from '../hooks/useAuth.jsx'
 import { useNavigate } from 'react-router-dom'
+import { useT } from '../i18n/index.jsx'
 import { Button } from '../components/ui/Button.jsx'
 
 export default function Welcome() {
   const { user } = useAuth()
+  const t = useT()
   const navigate = useNavigate()
 
   if (!user) return null
@@ -19,7 +21,7 @@ export default function Welcome() {
             <div className="welcome-avatar" style={{ marginBottom: 12 }}>
               {initials}
             </div>
-            <h2 className="auth-title" style={{ marginBottom: 4 }}>Welcome!</h2>
+            <h2 className="auth-title" style={{ marginBottom: 4 }}>{t('Welcome!')}</h2>
             <p style={{ fontSize: 12, color: 'var(--txt2)', wordBreak: 'break-all' }}>
               {user?.email}
             </p>
@@ -31,14 +33,14 @@ export default function Welcome() {
           </div>
 
           <div className="info-block">
-            <div className="info-block-label">Account</div>
+            <div className="info-block-label">{t('Account')}</div>
             <div className="info-item">
-              <span className="info-item-key">ID</span>
+              <span className="info-item-key">{t('ID')}</span>
               <span className="info-item-val">{user?.id}</span>
             </div>
             {user?.createdAt && (
               <div className="info-item">
-                <span className="info-item-key">Joined</span>
+                <span className="info-item-key">{t('Joined')}</span>
                 <span className="info-item-val">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </span>
@@ -48,11 +50,11 @@ export default function Welcome() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
             <Button variant="s" type="button" onClick={() => navigate('/forgot-password')}>
-              🔑 Change Password
+              {t('🔑 Change Password')}
             </Button>
             {user?.role === 'admin' && (
               <Button variant="p" type="button" onClick={() => navigate('/admin')}>
-                ⚙ Admin Dashboard
+                {t('⚙ Admin Dashboard')}
               </Button>
             )}
           </div>

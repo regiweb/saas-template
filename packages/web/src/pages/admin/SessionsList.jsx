@@ -5,6 +5,7 @@ import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import Toast from '../../components/admin/Toast.jsx'
 import useSessions from '../../hooks/useSessions.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
+import { useT } from '../../i18n/index.jsx'
 
 /* ─── Formatters ─────────────────────────────────────────────────── */
 
@@ -13,14 +14,14 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function fmtRelative(iso) {
+function fmtRelative(iso, t) {
   if (!iso) return '—'
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 1) return t('just now')
+  if (minutes < 60) return t('{n}m ago', { n: minutes })
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return t('{n}h ago', { n: hours })
   return fmtDate(iso)
 }
 
@@ -35,18 +36,19 @@ const ROLE_FILTERS = [
 /* ─── Self-revoke warning modal (with countdown) ─────────────────── */
 
 function SelfRevokeModal({ session, countdown, onConfirm, onCancel, loading }) {
+  const t = useT()
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-title">⚠ Revoke current session?</div>
+        <div className="modal-title">{t('⚠ Revoke current session?')}</div>
         <div className="modal-body">
-          You are about to revoke <strong>your own active session</strong> from IP{' '}
+          {t('You are about to revoke')} <strong>{t('your own active session')}</strong> {t('from IP')}{' '}
           <strong>{session.ip}</strong>.<br /><br />
-          You will be signed out from this device immediately and will need to log in again.
+          {t('You will be signed out from this device immediately and will need to log in again.')}
         </div>
         <div className="modal-actions">
           <button className="btn-modal cancel" onClick={onCancel} disabled={loading}>
-            Cancel
+            {t('Cancel')}
           </button>
           <button
             className="btn-modal warn"
@@ -56,8 +58,8 @@ function SelfRevokeModal({ session, countdown, onConfirm, onCancel, loading }) {
             {loading
               ? <span className="spin" style={{ width: 12, height: 12 }} />
               : countdown > 0
-                ? `Wait ${countdown}s…`
-                : 'Revoke session'}
+                ? t('Wait {n}s…', { n: countdown })
+                : t('Revoke session')}
           </button>
         </div>
       </div>
@@ -69,6 +71,7 @@ function SelfRevokeModal({ session, countdown, onConfirm, onCancel, loading }) {
 
 export default function SessionsList() {
   const { signOut } = useAuth()
+  const t = useT()
   const navigate = useNavigate()
   const {
     sessions, loading, error,
@@ -154,18 +157,18 @@ export default function SessionsList() {
         return
       } else if (confirm.type === 'one') {
         await revokeSession(confirm.session.id)
-        showToast(`Session for ${confirm.session.email} revoked`)
+        showToast(t('Session for {email} revoked', { email: confirm.session.email }))
       } else if (confirm.type === 'all') {
         await revokeAllForUser(confirm.session.userId)
-        showToast(`All sessions for ${confirm.session.email} revoked`)
+        showToast(t('All sessions for {email} revoked', { email: confirm.session.email }))
       } else if (confirm.type === 'bulk') {
         const ids = [...confirm.ids]
         await revokeBulkSessions(ids)
         setSelectedIds(new Set())
-        showToast(`${ids.length} session${ids.length > 1 ? 's' : ''} revoked`)
+        showToast(t('{n} sessions revoked', { n: ids.length }))
       }
     } catch (ex) {
-      showToast(ex?.message ?? 'Action failed', 'err')
+      showToast(ex?.message ?? t('Action failed'), 'err')
     } finally {
       setActionLoading(false)
       setConfirm(null)
@@ -179,12 +182,12 @@ export default function SessionsList() {
       {/* ── Header ── */}
       <div className="content-header">
         <div>
-          <div className="page-title">Sessions</div>
+          <div className="page-title">{t('Sessions')}</div>
           <div className="page-sub">
-            {loading ? 'Loading…'
-              : error ? 'Error loading'
-              : !sessions.length ? 'No active sessions'
-              : `Active sessions · ${sessions.length} total`}
+            {loading ? t('Loading…')
+              : error ? t('Error loading')
+              : !sessions.length ? t('No active sessions')
+              : t('Active sessions · {n} total', { n: sessions.length })}
           </div>
         </div>
 
@@ -195,7 +198,7 @@ export default function SessionsList() {
               style={{ color: 'var(--err)', borderColor: 'rgba(239,68,68,0.35)' }}
               onClick={() => setConfirm({ type: 'bulk', ids: new Set(selectedIds) })}
             >
-              Revoke selected ({selectedCount})
+              {t('Revoke selected ({n})', { n: selectedCount })}
             </button>
           )}
           <div style={{ display: 'flex', gap: 4 }}>
@@ -205,7 +208,7 @@ export default function SessionsList() {
                 className={`btn-sm ${roleFilter === f.key ? 'pri' : 'sec'}`}
                 onClick={() => setRoleFilter(f.key)}
               >
-                {f.label}
+                {t(f.label)}
               </button>
             ))}
           </div>
@@ -219,9 +222,9 @@ export default function SessionsList() {
           {/* Error */}
           {error ? (
             <div className="admin-error">
-              Could not load sessions.{' '}
+              {t('Could not load sessions.')}{' '}
               <span onClick={reload} style={{ cursor: 'pointer', color: 'var(--teal)', marginLeft: 'auto' }}>
-                Retry ↺
+                {t('Retry ↺')}
               </span>
             </div>
 
@@ -231,11 +234,11 @@ export default function SessionsList() {
               <thead>
                 <tr>
                   <th style={{ width: 36 }} />
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>IP</th>
-                  <th>Created</th>
-                  <th>Last seen</th>
+                  <th>{t('User')}</th>
+                  <th>{t('Role')}</th>
+                  <th>{t('IP')}</th>
+                  <th>{t('Created')}</th>
+                  <th>{t('Last seen')}</th>
                   <th />
                 </tr>
               </thead>
@@ -263,12 +266,12 @@ export default function SessionsList() {
             <div className="empty-state" style={{ padding: '48px 20px' }}>
               <div className="empty-ico" style={{ fontSize: 28, opacity: 0.35 }}>🖥</div>
               <div className="empty-ttl" style={{ fontFamily: 'Unbounded, sans-serif', fontSize: 12 }}>
-                {sessions.length ? 'No sessions match this filter' : 'No active sessions'}
+                {sessions.length ? t('No sessions match this filter') : t('No active sessions')}
               </div>
               <div className="empty-sub" style={{ fontSize: 11 }}>
                 {sessions.length
-                  ? 'Try a different role filter.'
-                  : 'There are no active sessions at the moment.'}
+                  ? t('Try a different role filter.')
+                  : t('There are no active sessions at the moment.')}
               </div>
             </div>
 
@@ -284,14 +287,14 @@ export default function SessionsList() {
                       checked={allSelected}
                       onChange={toggleAll}
                       style={{ accentColor: 'var(--acc)', cursor: 'pointer' }}
-                      title={allSelected ? 'Deselect all' : 'Select all'}
+                      title={allSelected ? t('Deselect all') : t('Select all')}
                     />
                   </th>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>IP</th>
-                  <th>Created</th>
-                  <th>Last seen</th>
+                  <th>{t('User')}</th>
+                  <th>{t('Role')}</th>
+                  <th>{t('IP')}</th>
+                  <th>{t('Created')}</th>
+                  <th>{t('Last seen')}</th>
                   <th />
                 </tr>
               </thead>
@@ -322,7 +325,7 @@ export default function SessionsList() {
                             className="badge badge-active"
                             style={{ fontSize: 9, alignSelf: 'flex-start' }}
                           >
-                            ● Current session
+                            {t('● Current session')}
                           </span>
                         )}
                       </div>
@@ -331,13 +334,13 @@ export default function SessionsList() {
                     {/* Role badge */}
                     <td>
                       <span className={`badge ${s.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
-                        {s.role}
+                        {t(s.role.charAt(0).toUpperCase() + s.role.slice(1))}
                       </span>
                     </td>
 
                     <td><span className="date-cell">{s.ip}</span></td>
                     <td><span className="date-cell">{fmtDate(s.createdAt)}</span></td>
-                    <td><span className="date-cell">{fmtRelative(s.lastSeenAt)}</span></td>
+                    <td><span className="date-cell">{fmtRelative(s.lastSeenAt, t)}</span></td>
 
                     {/* Actions */}
                     <td onClick={e => e.stopPropagation()}>
@@ -348,7 +351,7 @@ export default function SessionsList() {
                           style={{ color: 'var(--warn)', borderColor: 'rgba(245,158,11,0.35)' }}
                           onClick={() => setConfirm({ type: 'self', session: s })}
                         >
-                          Revoke
+                          {t('Revoke')}
                         </button>
                       ) : (
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -356,14 +359,14 @@ export default function SessionsList() {
                             className="btn-sm danger"
                             onClick={() => setConfirm({ type: 'one', session: s })}
                           >
-                            Revoke
+                            {t('Revoke')}
                           </button>
                           {sessionCountByUser[s.userId] > 1 && (
                             <button
                               className="btn-sm danger"
                               onClick={() => setConfirm({ type: 'all', session: s })}
                             >
-                              Revoke all
+                              {t('Revoke all')}
                             </button>
                           )}
                         </div>
@@ -382,33 +385,33 @@ export default function SessionsList() {
         <ConfirmModal
           title={
             confirm.type === 'bulk'
-              ? `Revoke ${confirm.ids.size} session${confirm.ids.size > 1 ? 's' : ''}?`
+              ? t('Revoke {n} sessions?', { n: confirm.ids.size })
               : confirm.type === 'all'
-                ? 'Revoke all sessions?'
-                : 'Revoke session?'
+                ? t('Revoke all sessions?')
+                : t('Revoke session?')
           }
           body={
             confirm.type === 'one'
               ? <>
-                  The session for <strong>{confirm.session.email}</strong> from IP{' '}
-                  <strong>{confirm.session.ip}</strong> will be terminated immediately.
+                  {t('The session for')} <strong>{confirm.session.email}</strong> {t('from IP')}{' '}
+                  <strong>{confirm.session.ip}</strong> {t('will be terminated immediately.')}
                 </>
               : confirm.type === 'all'
               ? <>
-                  All sessions for <strong>{confirm.session.email}</strong> will be terminated.{' '}
-                  The user will be signed out from all devices.
+                  {t('All sessions for')} <strong>{confirm.session.email}</strong>{' '}
+                  {t('will be terminated. The user will be signed out from all devices.')}
                 </>
               : /* bulk */ <>
-                  <strong>{confirm.ids.size}</strong> selected session{confirm.ids.size > 1 ? 's' : ''} will be
-                  terminated immediately. Affected users will be signed out on those devices.
+                  <strong>{confirm.ids.size}</strong>{' '}
+                  {t('selected sessions will be terminated immediately. Affected users will be signed out on those devices.')}
                 </>
           }
           confirmLabel={
             confirm.type === 'bulk'
-              ? `Revoke ${confirm.ids.size}`
+              ? t('Revoke {n}', { n: confirm.ids.size })
               : confirm.type === 'all'
-                ? 'Revoke all'
-                : 'Revoke session'
+                ? t('Revoke all')
+                : t('Revoke session')
           }
           confirmClass="danger"
           onConfirm={handleConfirm}

@@ -2,6 +2,7 @@ import AdminShell from '../../components/admin/AdminShell.jsx'
 import MetricCard from '../../components/admin/MetricCard.jsx'
 import ActivityFeed from '../../components/admin/ActivityFeed.jsx'
 import useAdminDashboard from '../../hooks/useAdminDashboard.js'
+import { useT } from '../../i18n/index.jsx'
 
 function SkelMetric() {
   return (
@@ -28,6 +29,7 @@ function SkelFeedItem() {
 
 export default function AdminDashboard() {
   const { data, loading, error, retry } = useAdminDashboard()
+  const t = useT()
 
   const isEmpty = !loading && !error && data?.totalUsers === 0
 
@@ -35,20 +37,20 @@ export default function AdminDashboard() {
     <AdminShell>
       <div className="content-header">
         <div>
-          <div className="page-title">Dashboard</div>
+          <div className="page-title">{t('Dashboard')}</div>
           <div className="page-sub" style={error ? { color: 'var(--err)' } : {}}>
-            {loading ? 'Loading…'
-              : error   ? 'Failed to load'
-              : isEmpty ? 'Nothing here yet'
-              : 'Platform overview · updated just now'}
+            {loading ? t('Loading…')
+              : error   ? t('Failed to load')
+              : isEmpty ? t('Nothing here yet')
+              : t('Platform overview · updated just now')}
           </div>
         </div>
         {!loading && (
           <div className="header-actions">
             {!error && !isEmpty && (
-              <button className="btn-sm sec">📤 Export</button>
+              <button className="btn-sm sec">{t('📤 Export')}</button>
             )}
-            <button className="btn-sm pri">+ Create User</button>
+            <button className="btn-sm pri">{t('+ Create User')}</button>
           </div>
         )}
       </div>
@@ -56,12 +58,12 @@ export default function AdminDashboard() {
       <div className="content-body">
         {error && (
           <div className="admin-error">
-            ⚠️ Could not load dashboard data. Check server status or your connection.
+            {t('⚠️ Could not load dashboard data. Check server status or your connection.')}
             <span
               style={{ color: 'var(--teal)', cursor: 'pointer', marginLeft: 'auto', fontSize: '10.5px', flexShrink: 0 }}
               onClick={retry}
             >
-              Retry ↺
+              {t('Retry ↺')}
             </span>
           </div>
         )}
@@ -73,38 +75,38 @@ export default function AdminDashboard() {
           ) : (
             <>
               <MetricCard
-                label="Total Users"
+                label={t('Total Users')}
                 icon="👥"
                 value={data?.totalUsers ?? 0}
                 delta={data?.totalUsers
-                  ? <><span className="up">↑ {data.newUsersWeek}</span> this week</>
-                  : 'no users yet'}
+                  ? <><span className="up">↑ {data.newUsersWeek}</span> {t('this week')}</>
+                  : t('no users yet')}
                 variant={data?.totalUsers ? 'ok' : 'n'}
                 valueClass={data?.totalUsers ? 'teal' : 'muted'}
               />
               <MetricCard
-                label="Active Sessions"
+                label={t('Active Sessions')}
                 icon="🟢"
                 value={data?.activeSessions ?? 0}
-                delta="right now"
+                delta={t('right now')}
                 variant={data?.activeSessions ? 'ok' : 'n'}
                 valueClass={data?.activeSessions ? 'teal' : 'muted'}
               />
               <MetricCard
-                label="Failed Logins 24h"
+                label={t('Failed Logins 24h')}
                 icon="⚠️"
                 value={data?.failedLogins ?? 0}
                 delta={data?.failedLogins
-                  ? <><span className="dn">↑ {data.failedDelta}</span> vs yesterday</>
-                  : 'no attempts'}
+                  ? <><span className="dn">↑ {data.failedDelta}</span> {t('vs yesterday')}</>
+                  : t('no attempts')}
                 variant={data?.failedLogins ? 'warn' : 'n'}
                 valueClass={data?.failedLogins ? 'warn' : 'muted'}
               />
               <MetricCard
-                label="System Uptime"
+                label={t('System Uptime')}
                 icon="⏱"
                 value={data?.uptime ?? '99.8%'}
-                delta="last 30 days"
+                delta={t('last 30 days')}
                 variant="n"
                 valueClass=""
               />
@@ -116,10 +118,10 @@ export default function AdminDashboard() {
         <div className="bottom-row" style={error ? { opacity: 0.3, pointerEvents: 'none' } : {}}>
           <div className="feed-card">
             <div className="card-header">
-              <span className="card-title">Activity Feed</span>
+              <span className="card-title">{t('Activity Feed')}</span>
               {!loading && (
                 <span className="card-count">
-                  {data?.activity?.length ?? 0} events
+                  {t('{n} events', { n: data?.activity?.length ?? 0 })}
                 </span>
               )}
             </div>
@@ -130,8 +132,8 @@ export default function AdminDashboard() {
             ) : !data?.activity?.length ? (
               <div className="empty-state">
                 <div className="empty-ico">📭</div>
-                <div className="empty-ttl">No activity yet</div>
-                <div className="empty-sub">Events appear here once users start registering and logging in</div>
+                <div className="empty-ttl">{t('No activity yet')}</div>
+                <div className="empty-sub">{t('Events appear here once users start registering and logging in')}</div>
               </div>
             ) : (
               <ActivityFeed items={data.activity} />
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="actions-card">
-            <div className="card-header"><span className="card-title">Quick Actions</span></div>
+            <div className="card-header"><span className="card-title">{t('Quick Actions')}</span></div>
             {loading ? (
               <div className="action-list">
                 {[0, 1].map(i => (
@@ -157,16 +159,16 @@ export default function AdminDashboard() {
                 <div className="action-item">
                   <div className="action-ico ico-teal">👤</div>
                   <div>
-                    <div className="action-name">Create User</div>
-                    <div className="action-desc">{isEmpty ? 'Add the first account' : 'Add a new account manually'}</div>
+                    <div className="action-name">{t('Create User')}</div>
+                    <div className="action-desc">{isEmpty ? t('Add the first account') : t('Add a new account manually')}</div>
                   </div>
                   <span className="action-arr">›</span>
                 </div>
                 <div className="action-item">
                   <div className="action-ico ico-blue">📤</div>
                   <div>
-                    <div className="action-name">Export Users</div>
-                    <div className="action-desc">Download CSV of all accounts</div>
+                    <div className="action-name">{t('Export Users')}</div>
+                    <div className="action-desc">{t('Download CSV of all accounts')}</div>
                   </div>
                   <span className="action-arr">›</span>
                 </div>

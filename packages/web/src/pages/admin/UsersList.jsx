@@ -7,6 +7,7 @@ import useUsers from '../../hooks/useUsers.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import * as api from '../../api/admin.js'
 import { ROLE_LABELS } from '../../constants/roles.js'
+import { useT } from '../../i18n/index.jsx'
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -21,6 +22,7 @@ function initials(email) {
 function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onChangeRole, isSelf }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const t = useT()
 
   useEffect(() => {
     if (!open) return
@@ -37,22 +39,22 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onCh
       >···</button>
       {open && (
         <div className="dropdown-menu">
-          <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}>👁 View profile</div>
+          <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}>{t('👁 View profile')}</div>
           <div className="dropdown-sep" />
           {!isSelf && (user.status === 'blocked'
-            ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}>🔓 Unblock user</div>
-            : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}>🔒 Block user</div>
+            ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}>{t('🔓 Unblock user')}</div>
+            : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}>{t('🔒 Block user')}</div>
           )}
           {!isSelf && (
             user.role === 'user'
-              ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}>👑 Make Admin</div>
-              : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}>👤 Make User</div>
+              ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}>{t('👑 Make Admin')}</div>
+              : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}>{t('👤 Make User')}</div>
           )}
-          <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}>🔑 Reset password</div>
+          <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}>{t('🔑 Reset password')}</div>
           {!isSelf && (
             <>
               <div className="dropdown-sep" />
-              <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>🗑 Delete</div>
+              <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>{t('🗑 Delete')}</div>
             </>
           )}
         </div>
@@ -66,6 +68,7 @@ function InviteModal({ onClose, onInvite }) {
   const [role, setRole]       = useState('user')
   const [loading, setLoading] = useState(false)
   const [err, setErr]         = useState(null)
+  const t = useT()
 
   async function submit(e) {
     e.preventDefault()
@@ -76,7 +79,7 @@ function InviteModal({ onClose, onInvite }) {
       await onInvite(email.trim(), role)
       onClose()
     } catch (ex) {
-      setErr(ex?.error?.message ?? 'Failed to invite user')
+      setErr(ex?.error?.message ?? t('Failed to invite user'))
     } finally {
       setLoading(false)
     }
@@ -85,10 +88,10 @@ function InviteModal({ onClose, onInvite }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ width: 360 }} onClick={e => e.stopPropagation()}>
-        <div className="modal-title">Invite User</div>
+        <div className="modal-title">{t('Invite User')}</div>
         <form onSubmit={submit}>
           <div style={{ marginBottom: 12 }}>
-            <div className="sett-label" style={{ marginBottom: 5 }}>Email</div>
+            <div className="sett-label" style={{ marginBottom: 5 }}>{t('Email')}</div>
             <input
               className="sett-input"
               type="email"
@@ -100,18 +103,18 @@ function InviteModal({ onClose, onInvite }) {
             />
           </div>
           <div style={{ marginBottom: 20 }}>
-            <div className="sett-label" style={{ marginBottom: 5 }}>Role</div>
+            <div className="sett-label" style={{ marginBottom: 5 }}>{t('Role')}</div>
             <select className="sett-select" value={role} onChange={e => setRole(e.target.value)}>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="user">{t('User')}</option>
+              <option value="admin">{t('Admin')}</option>
             </select>
           </div>
           {err && <div style={{ fontSize: 11, color: 'var(--err)', marginBottom: 12 }}>{err}</div>}
           <div className="modal-actions">
-            <button type="button" className="btn-modal cancel" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn-modal cancel" onClick={onClose}>{t('Cancel')}</button>
             <button type="submit" className="btn-modal warn" disabled={loading}>
               {loading ? <span className="spin" style={{ width: 12, height: 12 }} /> : null}
-              Invite
+              {t('Invite')}
             </button>
           </div>
         </form>
@@ -123,6 +126,7 @@ function InviteModal({ onClose, onInvite }) {
 export default function UsersList() {
   const navigate = useNavigate()
   const { user: authUser, accessToken } = useAuth()
+  const t = useT()
 
   const {
     users, total, totalPages, loading, error,
@@ -147,10 +151,10 @@ export default function UsersList() {
     optimisticSetRole(targetUser.id, newRole)
     try {
       await api.changeRole(accessToken, targetUser.id, newRole)
-      showToast(`${targetUser.email} is now ${ROLE_LABELS[newRole]}`)
+      showToast(t('{email} is now {role}', { email: targetUser.email, role: t(ROLE_LABELS[newRole]) }))
     } catch {
       optimisticSetRole(targetUser.id, prevRole)
-      showToast('Failed to change role — please try again', 'err')
+      showToast(t('Failed to change role — please try again'), 'err')
     }
   }
 
@@ -172,23 +176,23 @@ export default function UsersList() {
     try {
       if (confirm.type === 'block') {
         await blockUser(confirm.user.id)
-        showToast(`${confirm.user.email} has been blocked`)
+        showToast(t('{email} has been blocked', { email: confirm.user.email }))
       } else if (confirm.type === 'unblock') {
         await unblockUser(confirm.user.id)
-        showToast(`${confirm.user.email} has been unblocked`)
+        showToast(t('{email} has been unblocked', { email: confirm.user.email }))
       } else if (confirm.type === 'delete') {
         await deleteUser(confirm.user.id)
-        showToast(`${confirm.user.email} deleted`)
+        showToast(t('{email} deleted', { email: confirm.user.email }))
       } else if (confirm.type === 'role') {
         // Promotion confirmed — optimistic update + API + rollback on error
         const prevRole = confirm.user.role
         optimisticSetRole(confirm.user.id, confirm.targetRole)
         try {
           await api.changeRole(accessToken, confirm.user.id, confirm.targetRole)
-          showToast(`${confirm.user.email} is now ${ROLE_LABELS[confirm.targetRole]}`)
+          showToast(t('{email} is now {role}', { email: confirm.user.email, role: t(ROLE_LABELS[confirm.targetRole]) }))
         } catch {
           optimisticSetRole(confirm.user.id, prevRole)
-          showToast('Failed to change role — please try again', 'err')
+          showToast(t('Failed to change role — please try again'), 'err')
         }
       }
     } finally {
@@ -199,7 +203,7 @@ export default function UsersList() {
 
   async function handleReset(user) {
     const res = await resetPassword(user.id)
-    showToast(`Reset email sent to ${res.email ?? user.email}`)
+    showToast(t('Reset email sent to {email}', { email: res.email ?? user.email }))
   }
 
   const hasFilters = filters.search || filters.role || filters.status
@@ -210,17 +214,17 @@ export default function UsersList() {
     <AdminShell>
       <div className="content-header">
         <div>
-          <div className="page-title">Users</div>
+          <div className="page-title">{t('Users')}</div>
           <div className="page-sub">
-            {loading ? 'Loading…'
-              : error ? 'Error loading'
-              : hasFilters && !users.length ? 'No results'
-              : !users.length ? 'No users yet'
-              : `Manage accounts · ${total} total`}
+            {loading ? t('Loading…')
+              : error ? t('Error loading')
+              : hasFilters && !users.length ? t('No results')
+              : !users.length ? t('No users yet')
+              : t('Manage accounts · {n} total', { n: total })}
           </div>
         </div>
         <div className="header-actions">
-          <button className="btn-sm pri" onClick={() => setShowInvite(true)}>+ Invite User</button>
+          <button className="btn-sm pri" onClick={() => setShowInvite(true)}>{t('+ Invite User')}</button>
         </div>
       </div>
 
@@ -231,7 +235,7 @@ export default function UsersList() {
             <span className="search-icon">🔍</span>
             <input
               className="search-input"
-              placeholder="Search by email…"
+              placeholder={t('Search by email…')}
               value={filters.search}
               onChange={e => updateFilters({ search: e.target.value })}
             />
@@ -241,25 +245,25 @@ export default function UsersList() {
             value={filters.role}
             onChange={e => updateFilters({ role: e.target.value })}
           >
-            <option value="">All roles</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
+            <option value="">{t('All roles')}</option>
+            <option value="admin">{t('Admin')}</option>
+            <option value="user">{t('User')}</option>
           </select>
           <select
             className="filter-select"
             value={filters.status}
             onChange={e => updateFilters({ status: e.target.value })}
           >
-            <option value="">All statuses</option>
-            <option value="active">Active</option>
-            <option value="blocked">Blocked</option>
+            <option value="">{t('All statuses')}</option>
+            <option value="active">{t('Active')}</option>
+            <option value="blocked">{t('Blocked')}</option>
           </select>
           {hasFilters && (
             <span
               className="reset-link"
               onClick={() => updateFilters({ search: '', role: '', status: '' })}
             >
-              Reset filters
+              {t('Reset filters')}
             </span>
           )}
         </div>
@@ -269,7 +273,7 @@ export default function UsersList() {
           {loading ? (
             <table className="users-table">
               <thead>
-                <tr><th>User</th><th>Role</th><th>Status</th><th>Created At</th><th /></tr>
+                <tr><th>{t('User')}</th><th>{t('Role')}</th><th>{t('Status')}</th><th>{t('Created At')}</th><th /></tr>
               </thead>
               <tbody>
                 {Array.from({ length: 8 }, (_, i) => (
@@ -294,23 +298,23 @@ export default function UsersList() {
                 {hasFilters ? '🔍' : '👥'}
               </div>
               <div className="empty-ttl" style={{ fontFamily: 'Unbounded, sans-serif', fontSize: 12 }}>
-                {hasFilters ? 'No users found' : 'No users yet'}
+                {hasFilters ? t('No users found') : t('No users yet')}
               </div>
               <div className="empty-sub" style={{ fontSize: 11 }}>
                 {hasFilters
-                  ? <>No results for "{filters.search || 'current filters'}". <span className="reset-link" onClick={() => updateFilters({ search: '', role: '', status: '' })}>Reset filters</span>.</>
-                  : 'Invite the first user to get started.'}
+                  ? <>{t('No results for')} "{filters.search || t('current filters')}". <span className="reset-link" onClick={() => updateFilters({ search: '', role: '', status: '' })}>{t('Reset filters')}</span>.</>
+                  : t('Invite the first user to get started.')}
               </div>
               {!hasFilters && (
                 <button className="btn-sm pri" style={{ marginTop: 8 }} onClick={() => setShowInvite(true)}>
-                  + Invite User
+                  {t('+ Invite User')}
                 </button>
               )}
             </div>
           ) : (
             <table className="users-table">
               <thead>
-                <tr><th>User</th><th>Role</th><th>Status</th><th>Created At</th><th /></tr>
+                <tr><th>{t('User')}</th><th>{t('Role')}</th><th>{t('Status')}</th><th>{t('Created At')}</th><th /></tr>
               </thead>
               <tbody>
                 {users.map(u => {
@@ -325,12 +329,12 @@ export default function UsersList() {
                       </td>
                       <td>
                         <span className={`badge badge-${u.role}`}>
-                          {ROLE_LABELS[u.role]}
+                          {t(ROLE_LABELS[u.role])}
                         </span>
                         {isSelf && (
                           <span
                             style={{ marginLeft: 4, fontSize: 10, color: 'var(--muted)', cursor: 'help', userSelect: 'none' }}
-                            title="You cannot change your own role"
+                            title={t('You cannot change your own role')}
                           >
                             🔒
                           </span>
@@ -338,7 +342,7 @@ export default function UsersList() {
                       </td>
                       <td>
                         <span className={`badge badge-${u.status}`}>
-                          {u.status.charAt(0).toUpperCase() + u.status.slice(1)}
+                          {t(u.status.charAt(0).toUpperCase() + u.status.slice(1))}
                         </span>
                       </td>
                       <td><span className="date-cell">{fmtDate(u.createdAt)}</span></td>
@@ -365,13 +369,13 @@ export default function UsersList() {
         {/* Pagination */}
         {!loading && total > 20 && (
           <div className="pagination">
-            <span className="page-info">Showing {from}–{to} of {total}</span>
+            <span className="page-info">{t('Showing {from}–{to} of {total}', { from, to, total })}</span>
             <div className="page-btns">
               <button
                 className="page-btn"
                 disabled={filters.page <= 1}
                 onClick={() => setPage(filters.page - 1)}
-              >← Prev</button>
+              >{t('← Prev')}</button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 const p = i + 1
                 return (
@@ -392,7 +396,7 @@ export default function UsersList() {
                 className="page-btn"
                 disabled={filters.page >= totalPages}
                 onClick={() => setPage(filters.page + 1)}
-              >Next →</button>
+              >{t('Next →')}</button>
             </div>
           </div>
         )}
@@ -402,26 +406,26 @@ export default function UsersList() {
       {confirm && (
         <ConfirmModal
           title={
-            confirm.type === 'block'     ? 'Block user?'
-            : confirm.type === 'unblock' ? 'Unblock user?'
-            : confirm.type === 'delete'  ? 'Delete account?'
-            : `Promote to ${ROLE_LABELS[confirm.targetRole]}?`
+            confirm.type === 'block'     ? t('Block user?')
+            : confirm.type === 'unblock' ? t('Unblock user?')
+            : confirm.type === 'delete'  ? t('Delete account?')
+            : t('Promote to {role}?', { role: t(ROLE_LABELS[confirm.targetRole]) })
           }
           body={
             confirm.type === 'block'
-              ? <><strong>{confirm.user.email}</strong> will lose access immediately. All active sessions will be terminated. You can unblock them at any time.</>
+              ? <><strong>{confirm.user.email}</strong> {t('will lose access immediately. All active sessions will be terminated. You can unblock them at any time.')}</>
               : confirm.type === 'unblock'
-              ? <><strong>{confirm.user.email}</strong> will regain access to the platform.</>
+              ? <><strong>{confirm.user.email}</strong> {t('will regain access to the platform.')}</>
               : confirm.type === 'delete'
-              ? <><strong>{confirm.user.email}</strong> and all associated data will be permanently deleted. This action <strong>cannot be undone</strong>.</>
+              ? <><strong>{confirm.user.email}</strong> {t('and all associated data will be permanently deleted. This action')} <strong>{t('cannot be undone')}</strong>.</>
               : /* role promotion */
-                <>Promote <strong>{confirm.user.email}</strong> to <strong>Admin</strong>? They will gain full administrative access to the platform, including user management.</>
+                <>{t('Promote {email} to Admin? They will gain full administrative access to the platform, including user management.', { email: confirm.user.email })}</>
           }
           confirmLabel={
-            confirm.type === 'block'     ? '🔒 Block user'
-            : confirm.type === 'unblock' ? '🔓 Unblock user'
-            : confirm.type === 'delete'  ? '🗑 Delete permanently'
-            : '👑 Promote to Admin'
+            confirm.type === 'block'     ? t('🔒 Block user')
+            : confirm.type === 'unblock' ? t('🔓 Unblock user')
+            : confirm.type === 'delete'  ? t('🗑 Delete permanently')
+            : t('👑 Promote to Admin')
           }
           confirmClass={confirm.type === 'delete' ? 'danger' : 'warn'}
           onConfirm={handleConfirm}
@@ -434,7 +438,7 @@ export default function UsersList() {
       {showInvite && (
         <InviteModal
           onClose={() => setShowInvite(false)}
-          onInvite={async (email, role) => { await inviteUser(email, role); showToast(`Invite sent to ${email}`) }}
+          onInvite={async (email, role) => { await inviteUser(email, role); showToast(t('Invite sent to {email}', { email })) }}
         />
       )}
 

@@ -7,6 +7,7 @@ import Toast from '../../components/admin/Toast.jsx'
 import * as api from '../../api/admin.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { PREDEFINED_ROLES, ROLE_LABELS } from '../../constants/roles.js'
+import { useT } from '../../i18n/index.jsx'
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -18,12 +19,12 @@ function initials(email) {
   return (parts[0][0] + (parts[1]?.[0] ?? parts[0][1] ?? '')).toUpperCase()
 }
 
-function relativeTime(iso) {
-  if (!iso) return 'Never'
+function relativeTime(iso, t) {
+  if (!iso) return t('Never')
   const diff = Date.now() - new Date(iso).getTime()
-  if (diff < 60000)      return 'Just now'
-  if (diff < 3600000)    return `${Math.floor(diff / 60000)} min ago`
-  if (diff < 86400000)   return `${Math.floor(diff / 3600000)} hr ago`
+  if (diff < 60000)      return t('Just now')
+  if (diff < 3600000)    return t('{n} min ago', { n: Math.floor(diff / 60000) })
+  if (diff < 86400000)   return t('{n} hr ago', { n: Math.floor(diff / 3600000) })
   return fmtDate(iso)
 }
 
@@ -31,6 +32,7 @@ export default function UserDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user: authUser, accessToken } = useAuth()
+  const t = useT()
 
   const [user, setUser]         = useState(null)
   const [activity, setActivity] = useState([])
@@ -74,12 +76,12 @@ export default function UserDetail() {
     setPendingRole(targetRole)
     try {
       await api.changeRole(accessToken, user.id, targetRole)
-      showToast(`Role changed to ${ROLE_LABELS[targetRole]}`)
+      showToast(t('Role changed to {role}', { role: t(ROLE_LABELS[targetRole]) }))
     } catch {
       // Rollback
       setUser(u => ({ ...u, role: prevRole }))
       setPendingRole(prevRole)
-      showToast('Failed to change role — please try again', 'err')
+      showToast(t('Failed to change role — please try again'), 'err')
     }
   }
 
@@ -111,11 +113,11 @@ export default function UserDetail() {
       if (confirm.type === 'block') {
         await api.blockUser(accessToken, user.id)
         setUser(u => ({ ...u, status: 'blocked', blockedAt: new Date().toISOString() }))
-        showToast('User blocked')
+        showToast(t('User blocked'))
       } else if (confirm.type === 'unblock') {
         await api.unblockUser(accessToken, user.id)
         setUser(u => { const n = { ...u, status: 'active' }; delete n.blockedAt; return n })
-        showToast('User unblocked')
+        showToast(t('User unblocked'))
       } else if (confirm.type === 'delete') {
         await api.deleteUser(accessToken, user.id)
         navigate('/admin/users', { replace: true })
@@ -134,9 +136,9 @@ export default function UserDetail() {
     setResetting(true)
     try {
       const res = await api.resetPassword(accessToken, user.id)
-      showToast(`Reset link sent to ${res?.email ?? user.email}`)
+      showToast(t('Reset link sent to {email}', { email: res?.email ?? user.email }))
     } catch {
-      showToast('Failed to send reset email — please try again', 'err')
+      showToast(t('Failed to send reset email — please try again'), 'err')
     } finally {
       setResetting(false)
     }
@@ -169,18 +171,18 @@ export default function UserDetail() {
         </div>
       ) : notFound ? (
         <div className="ud-header-wrap">
-          <a className="back-link" onClick={() => navigate('/admin/users')}>← Back to Users</a>
+          <a className="back-link" onClick={() => navigate('/admin/users')}>{t('← Back to Users')}</a>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', gap: 10, textAlign: 'center' }}>
             <div style={{ fontSize: 32, opacity: 0.3 }}>👤</div>
-            <div style={{ fontFamily: 'Unbounded, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--txt2)' }}>User not found</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>This account may have been deleted or the link is invalid.</div>
-            <a className="back-link" style={{ marginTop: 8, fontSize: 12, color: 'var(--teal)' }} onClick={() => navigate('/admin/users')}>← Back to Users list</a>
+            <div style={{ fontFamily: 'Unbounded, sans-serif', fontSize: 14, fontWeight: 700, color: 'var(--txt2)' }}>{t('User not found')}</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{t('This account may have been deleted or the link is invalid.')}</div>
+            <a className="back-link" style={{ marginTop: 8, fontSize: 12, color: 'var(--teal)' }} onClick={() => navigate('/admin/users')}>{t('← Back to Users list')}</a>
           </div>
         </div>
       ) : user && (
         <>
           <div className="ud-header-wrap">
-            <a className="back-link" onClick={() => navigate('/admin/users')}>← Back to Users</a>
+            <a className="back-link" onClick={() => navigate('/admin/users')}>{t('← Back to Users')}</a>
             <div className="user-header">
               <div className="user-id">
                 <div
@@ -196,18 +198,18 @@ export default function UserDetail() {
                   <div className="user-badges">
                     {/* Role badge in header — display-only; selector lives in the Profile card */}
                     <span className={`badge badge-${user.role}`}>
-                      {ROLE_LABELS[user.role]}
+                      {t(ROLE_LABELS[user.role])}
                     </span>
                     {isSelf && (
                       <span
                         style={{ fontSize: 10, color: 'var(--muted)', cursor: 'help', userSelect: 'none' }}
-                        title="You cannot change your own role"
+                        title={t('You cannot change your own role')}
                       >
                         🔒
                       </span>
                     )}
                     <span className={`badge badge-${user.status}`}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                      {t(user.status.charAt(0).toUpperCase() + user.status.slice(1))}
                     </span>
                   </div>
                 </div>
@@ -219,15 +221,15 @@ export default function UserDetail() {
                   disabled={resetting}
                 >
                   {resetting
-                    ? <><span className="spin" style={{ width: 11, height: 11 }} /> Sending…</>
-                    : '🔑 Reset Password'}
+                    ? <><span className="spin" style={{ width: 11, height: 11 }} /> {t('Sending…')}</>
+                    : t('🔑 Reset Password')}
                 </button>
                 {!isSelf && (blocked
-                  ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}>🔓 Unblock</button>
-                  : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}>🔒 Block</button>
+                  ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}>{t('🔓 Unblock')}</button>
+                  : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}>{t('🔒 Block')}</button>
                 )}
                 {!isSelf && (
-                  <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}>🗑 Delete</button>
+                  <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}>{t('🗑 Delete')}</button>
                 )}
               </div>
             </div>
@@ -236,26 +238,26 @@ export default function UserDetail() {
           <div className="detail-body">
             <div className="col-main">
               <div className="card">
-                <div className="card-header"><span className="card-title">Profile</span></div>
+                <div className="card-header"><span className="card-title">{t('Profile')}</span></div>
                 <div className="card-body">
                   <table className="meta-table">
                     <tbody>
                       <tr>
-                        <td className="meta-label">Email</td>
+                        <td className="meta-label">{t('Email')}</td>
                         <td className="meta-value" style={blocked ? { color: 'var(--txt2)' } : {}}>{user.email}</td>
                       </tr>
                       <tr>
-                        <td className="meta-label">Role</td>
+                        <td className="meta-label">{t('Role')}</td>
                         <td className="meta-value">
                           {isSelf ? (
                             /* Guard: cannot demote own account */
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span className={`badge badge-${user.role}`}>{ROLE_LABELS[user.role]}</span>
+                              <span className={`badge badge-${user.role}`}>{t(ROLE_LABELS[user.role])}</span>
                               <span
                                 style={{ fontSize: 10, color: 'var(--muted)', cursor: 'help' }}
-                                title="You cannot change your own role — ask another admin"
+                                title={t('You cannot change your own role — ask another admin')}
                               >
-                                🔒 own account
+                                {t('🔒 own account')}
                               </span>
                             </div>
                           ) : (
@@ -268,7 +270,7 @@ export default function UserDetail() {
                                 style={{ fontSize: 11, minWidth: 90 }}
                               >
                                 {PREDEFINED_ROLES.map(r => (
-                                  <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+                                  <option key={r} value={r}>{t(ROLE_LABELS[r])}</option>
                                 ))}
                               </select>
                               {pendingRole !== user.role && !blocked && (
@@ -281,7 +283,7 @@ export default function UserDetail() {
                                   >
                                     {roleSaving
                                       ? <span className="spin" style={{ width: 10, height: 10 }} />
-                                      : 'Save'
+                                      : t('Save')
                                     }
                                   </button>
                                   <span
@@ -289,7 +291,7 @@ export default function UserDetail() {
                                     onClick={() => { if (!roleSaving) setPendingRole(user.role) }}
                                     style={{ fontSize: 11, cursor: roleSaving ? 'default' : 'pointer' }}
                                   >
-                                    Cancel
+                                    {t('Cancel')}
                                   </span>
                                 </>
                               )}
@@ -298,27 +300,27 @@ export default function UserDetail() {
                         </td>
                       </tr>
                       <tr>
-                        <td className="meta-label">Status</td>
+                        <td className="meta-label">{t('Status')}</td>
                         <td className="meta-value">
                           <span className={`badge badge-${user.status}`}>
-                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                            {t(user.status.charAt(0).toUpperCase() + user.status.slice(1))}
                           </span>
                         </td>
                       </tr>
                       {user.blockedAt && (
                         <tr>
-                          <td className="meta-label">Blocked At</td>
+                          <td className="meta-label">{t('Blocked At')}</td>
                           <td className="meta-value" style={{ color: 'var(--err)' }}>{fmtDate(user.blockedAt)}</td>
                         </tr>
                       )}
                       <tr>
-                        <td className="meta-label">Created At</td>
+                        <td className="meta-label">{t('Created At')}</td>
                         <td className="meta-value">{fmtDate(user.createdAt)}</td>
                       </tr>
                       <tr>
-                        <td className="meta-label">Last Login</td>
+                        <td className="meta-label">{t('Last Login')}</td>
                         <td className="meta-value" style={!blocked ? { color: 'var(--teal)' } : {}}>
-                          {relativeTime(user.lastLogin)}
+                          {relativeTime(user.lastLogin, t)}
                         </td>
                       </tr>
                     </tbody>
@@ -328,11 +330,11 @@ export default function UserDetail() {
 
               <div className="card">
                 <div className="card-header">
-                  <span className="card-title">Activity</span>
-                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>last {activity.length} events</span>
+                  <span className="card-title">{t('Activity')}</span>
+                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>{t('last {n} events', { n: activity.length })}</span>
                 </div>
                 {activity.length === 0
-                  ? <div className="empty-state"><div className="empty-ico">📭</div><div className="empty-ttl">No activity</div></div>
+                  ? <div className="empty-state"><div className="empty-ico">📭</div><div className="empty-ttl">{t('No activity')}</div></div>
                   : <ActivityFeed items={activity} />
                 }
               </div>
@@ -341,13 +343,13 @@ export default function UserDetail() {
             <div className="col-side">
               <div className="card">
                 <div className="card-header">
-                  <span className="card-title">Usage</span>
+                  <span className="card-title">{t('Usage')}</span>
                   <span className="badge" style={{ background: 'var(--surf)', border: '1px solid var(--brd)', color: 'var(--muted)', fontSize: 9 }}>v0.5.0</span>
                 </div>
                 <div className="usage-placeholder">
                   <div className="usage-ico">📊</div>
-                  <div className="usage-ttl">Not available yet</div>
-                  <div className="usage-sub">Usage data will be available in v0.5.0 when billing is enabled.</div>
+                  <div className="usage-ttl">{t('Not available yet')}</div>
+                  <div className="usage-sub">{t('Usage data will be available in v0.5.0 when billing is enabled.')}</div>
                 </div>
               </div>
             </div>
@@ -358,26 +360,26 @@ export default function UserDetail() {
       {confirm && user && (
         <ConfirmModal
           title={
-            confirm.type === 'block'     ? 'Block user?'
-            : confirm.type === 'unblock' ? 'Unblock user?'
-            : confirm.type === 'delete'  ? 'Delete account?'
-            : `Promote to ${ROLE_LABELS[confirm.targetRole]}?`
+            confirm.type === 'block'     ? t('Block user?')
+            : confirm.type === 'unblock' ? t('Unblock user?')
+            : confirm.type === 'delete'  ? t('Delete account?')
+            : t('Promote to {role}?', { role: t(ROLE_LABELS[confirm.targetRole]) })
           }
           body={
             confirm.type === 'block'
-              ? <><strong>{user.email}</strong> will lose access to the platform immediately. All active sessions will be terminated. You can unblock them at any time.</>
+              ? <><strong>{user.email}</strong> {t('will lose access to the platform immediately. All active sessions will be terminated. You can unblock them at any time.')}</>
               : confirm.type === 'unblock'
-              ? <><strong>{user.email}</strong> will regain full access to the platform.</>
+              ? <><strong>{user.email}</strong> {t('will regain full access to the platform.')}</>
               : confirm.type === 'delete'
-              ? <><strong>{user.email}</strong> and all associated data will be permanently deleted. This action <strong>cannot be undone</strong>.</>
+              ? <><strong>{user.email}</strong> {t('and all associated data will be permanently deleted. This action')} <strong>{t('cannot be undone')}</strong>.</>
               : /* role — only 'admin' promotion reaches this confirm */
-                <>Promote <strong>{user.email}</strong> to <strong>Admin</strong>? They will gain full administrative access to the platform, including user management.</>
+                <>{t('Promote {email} to Admin? They will gain full administrative access to the platform, including user management.', { email: user.email })}</>
           }
           confirmLabel={
-            confirm.type === 'block'     ? '🔒 Block user'
-            : confirm.type === 'unblock' ? '🔓 Unblock user'
-            : confirm.type === 'delete'  ? '🗑 Delete permanently'
-            : '👑 Promote to Admin'
+            confirm.type === 'block'     ? t('🔒 Block user')
+            : confirm.type === 'unblock' ? t('🔓 Unblock user')
+            : confirm.type === 'delete'  ? t('🗑 Delete permanently')
+            : t('👑 Promote to Admin')
           }
           confirmClass={confirm.type === 'delete' ? 'danger' : 'warn'}
           onConfirm={handleConfirm}

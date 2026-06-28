@@ -8,6 +8,10 @@
  *   t('Sign out')  → 'Выйти'  (lang=ru)  |  'Sign out' (lang=en, identity)
  * Uncovered strings fall back to the English source.
  *
+ * Dynamic strings interpolate {name} placeholders:
+ *   t('Showing {n} total', { n: 9 }) → 'Показано 9 всего'
+ * Source string and dictionary entry both carry the {name} tokens.
+ *
  * No external dependency — a small React context is enough for RU/EN.
  */
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
@@ -43,7 +47,13 @@ export function I18nProvider({ children }) {
       try { localStorage.setItem(STORAGE_KEY, next) } catch { /* ignore */ }
       setLangState(next)
     },
-    t: (s) => (lang === 'ru' ? (EN_TO_RU[s] ?? s) : s),
+    t: (s, vars) => {
+      let out = lang === 'ru' ? (EN_TO_RU[s] ?? s) : s
+      if (vars) {
+        for (const k of Object.keys(vars)) out = out.split(`{${k}}`).join(String(vars[k]))
+      }
+      return out
+    },
   }), [lang])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
