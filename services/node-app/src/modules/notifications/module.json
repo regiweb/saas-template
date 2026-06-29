@@ -1,0 +1,11 @@
+{
+  "name": "notifications",
+  "prefix": "/api/notifications",
+  "routes": "./routes.js",
+  "export": "notificationRoutes",
+  "migrations": "./migrations",
+  "requires": ["auth"],
+  "optional": [],
+  "env": [],
+  "nav": [{ "label": "Notifications", "path": "/notifications" }]
+}
