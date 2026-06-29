@@ -1196,3 +1196,34 @@
   .users-table { min-width: 620px; }
   .pagination  { flex-wrap: wrap; gap: 8px; }
 }
+
+/* ── Notifications inbox (EZL-US-019) ───────────────────────────── */
+.ntf-page { max-width: 720px; }
+.ntf-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.ntf-sub  { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.ntf-readall {
+  display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
+  font-size: 10.5px; font-weight: 700; color: var(--txt2);
+  background: var(--surf); border: 1px solid var(--brd); border-radius: var(--rpill);
+  cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap;
+}
+.ntf-readall:hover:not(:disabled) { color: var(--txt); background: var(--bg-p); }
+.ntf-readall:disabled { opacity: 0.4; cursor: default; }
+
+.ntf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ntf-item {
+  display: flex; gap: 10px; padding: 12px 14px; cursor: pointer;
+  background: var(--bg); border: 1px solid var(--brd); border-radius: var(--r12);
+  transition: border-color 0.15s, background 0.15s;
+}
+.ntf-item:hover { border-color: var(--muted); }
+.ntf-item.unread { background: var(--bg-p); border-color: rgba(13,148,136,0.25); }
+.ntf-dot { flex: 0 0 auto; width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: transparent; }
+.ntf-item.unread .ntf-dot { background: var(--teal, #2dd4bf); }
+.ntf-main { flex: 1 1 auto; min-width: 0; }
+.ntf-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.ntf-title { font-size: 11.5px; font-weight: 700; color: var(--txt); }
+.ntf-item.unread .ntf-title { color: var(--txt); }
+.ntf-time { flex: 0 0 auto; font-size: 10px; color: var(--muted); }
+.ntf-body { font-size: 10.5px; color: var(--txt2); margin: 4px 0 0; line-height: 1.5; white-space: pre-wrap; }
+.ntf-badge { margin-top: 8px; }
