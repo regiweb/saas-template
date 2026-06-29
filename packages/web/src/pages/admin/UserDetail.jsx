@@ -5,6 +5,7 @@ import ActivityFeed from '../../components/admin/ActivityFeed.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import IdTag from '../../components/admin/IdTag.jsx'
 import Toast from '../../components/admin/Toast.jsx'
+import { stripIcon } from '../../lib/stripIcon.js'
 import * as api from '../../api/admin.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { PREDEFINED_ROLES, ROLE_LABELS } from '../../constants/roles.js'
@@ -226,14 +227,14 @@ export default function UserDetail() {
                 >
                   {resetting
                     ? <><span className="spin" style={{ width: 11, height: 11 }} /> {t('Sending…')}</>
-                    : t('🔑 Reset Password')}
+                    : <><i className="ti ti-key" aria-hidden="true" /> {stripIcon(t('🔑 Reset Password'))}</>}
                 </button>
                 {!isSelf && (blocked
-                  ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}>{t('🔓 Unblock')}</button>
-                  : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}>{t('🔒 Block')}</button>
+                  ? <button className="abtn ok" onClick={() => setConfirm({ type: 'unblock' })}><i className="ti ti-lock-open" aria-hidden="true" /> {stripIcon(t('🔓 Unblock'))}</button>
+                  : <button className="abtn warn" onClick={() => setConfirm({ type: 'block' })}><i className="ti ti-lock" aria-hidden="true" /> {stripIcon(t('🔒 Block'))}</button>
                 )}
                 {!isSelf && (
-                  <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}>{t('🗑 Delete')}</button>
+                  <button className="abtn err" onClick={() => setConfirm({ type: 'delete' })}><i className="ti ti-trash" aria-hidden="true" /> {stripIcon(t('🗑 Delete'))}</button>
                 )}
               </div>
             </div>
@@ -380,10 +381,10 @@ export default function UserDetail() {
                 <>{t('Promote {email} to Admin? They will gain full administrative access to the platform, including user management.', { email: user.email })}</>
           }
           confirmLabel={
-            confirm.type === 'block'     ? t('🔒 Block user')
-            : confirm.type === 'unblock' ? t('🔓 Unblock user')
-            : confirm.type === 'delete'  ? t('🗑 Delete permanently')
-            : t('👑 Promote to Admin')
+            confirm.type === 'block'     ? <><i className="ti ti-lock" /> {stripIcon(t('🔒 Block user'))}</>
+            : confirm.type === 'unblock' ? <><i className="ti ti-lock-open" /> {stripIcon(t('🔓 Unblock user'))}</>
+            : confirm.type === 'delete'  ? <><i className="ti ti-trash" /> {stripIcon(t('🗑 Delete permanently'))}</>
+            : <><i className="ti ti-crown" /> {stripIcon(t('👑 Promote to Admin'))}</>
           }
           confirmClass={confirm.type === 'delete' ? 'danger' : 'warn'}
           onConfirm={handleConfirm}

@@ -11,6 +11,7 @@ import { useAuth } from '../../hooks/useAuth.jsx'
 import * as api from '../../api/admin.js'
 import { ROLE_LABELS } from '../../constants/roles.js'
 import { useT } from '../../i18n/index.jsx'
+import { stripIcon } from '../../lib/stripIcon.js'
 
 function fmtDate(iso) {
   if (!iso) return '—'
@@ -71,22 +72,22 @@ function RowDropdown({ user, onBlock, onUnblock, onReset, onDelete, onView, onCh
           className="dropdown-menu dropdown-menu-portal"
           style={{ position: 'fixed', top: coords.top, right: coords.right }}
         >
-          <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}>{t('👁 View profile')}</div>
+          <div className="dropdown-item" onClick={() => { setOpen(false); onView() }}><i className="ti ti-eye" />{stripIcon(t('👁 View profile'))}</div>
           <div className="dropdown-sep" />
           {!isSelf && (user.status === 'blocked'
-            ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}>{t('🔓 Unblock user')}</div>
-            : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}>{t('🔒 Block user')}</div>
+            ? <div className="dropdown-item" onClick={() => { setOpen(false); onUnblock() }}><i className="ti ti-lock-open" />{stripIcon(t('🔓 Unblock user'))}</div>
+            : <div className="dropdown-item" onClick={() => { setOpen(false); onBlock() }}><i className="ti ti-lock" />{stripIcon(t('🔒 Block user'))}</div>
           )}
           {!isSelf && (
             user.role === 'user'
-              ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}>{t('👑 Make Admin')}</div>
-              : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}>{t('👤 Make User')}</div>
+              ? <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('admin') }}><i className="ti ti-crown" />{stripIcon(t('👑 Make Admin'))}</div>
+              : <div className="dropdown-item" onClick={() => { setOpen(false); onChangeRole('user') }}><i className="ti ti-user" />{stripIcon(t('👤 Make User'))}</div>
           )}
-          <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}>{t('🔑 Reset password')}</div>
+          <div className="dropdown-item" onClick={() => { setOpen(false); onReset() }}><i className="ti ti-key" />{stripIcon(t('🔑 Reset password'))}</div>
           {!isSelf && (
             <>
               <div className="dropdown-sep" />
-              <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}>{t('🗑 Delete')}</div>
+              <div className="dropdown-item danger" onClick={() => { setOpen(false); onDelete() }}><i className="ti ti-trash" />{stripIcon(t('🗑 Delete'))}</div>
             </>
           )}
         </div>,
@@ -197,7 +198,7 @@ export default function UsersList() {
           </div>
         </div>
         <div className="header-actions">
-          <button className="btn-sm pri" onClick={() => setShowInvite(true)}>{t('+ Invite User')}</button>
+          <button className="btn-sm pri" onClick={() => setShowInvite(true)}><i className="ti ti-user-plus" aria-hidden="true" /> {stripIcon(t('+ Invite User'))}</button>
         </div>
       </div>
 
@@ -413,10 +414,10 @@ export default function UsersList() {
                 <>{t('Promote {email} to Admin? They will gain full administrative access to the platform, including user management.', { email: confirm.user.email })}</>
           }
           confirmLabel={
-            confirm.type === 'block'     ? t('🔒 Block user')
-            : confirm.type === 'unblock' ? t('🔓 Unblock user')
-            : confirm.type === 'delete'  ? t('🗑 Delete permanently')
-            : t('👑 Promote to Admin')
+            confirm.type === 'block'     ? <><i className="ti ti-lock" /> {stripIcon(t('🔒 Block user'))}</>
+            : confirm.type === 'unblock' ? <><i className="ti ti-lock-open" /> {stripIcon(t('🔓 Unblock user'))}</>
+            : confirm.type === 'delete'  ? <><i className="ti ti-trash" /> {stripIcon(t('🗑 Delete permanently'))}</>
+            : <><i className="ti ti-crown" /> {stripIcon(t('👑 Promote to Admin'))}</>
           }
           confirmClass={confirm.type === 'delete' ? 'danger' : 'warn'}
           onConfirm={handleConfirm}
