@@ -9,7 +9,8 @@ const PORT = process.env.NODE_PORT || 3000
 
 // trustProxy: behind Caddy, request.ip must reflect the real client (X-Forwarded-For)
 // so per-IP rate limiting (C2) and session/audit IPs are meaningful, not the proxy IP.
-const app = Fastify({ logger: true, trustProxy: true })
+// bodyLimit (M4): cap request bodies — this is a JSON API, no endpoint needs more.
+const app = Fastify({ logger: true, trustProxy: true, bodyLimit: 256 * 1024 })
 
 await app.register(cors, {
   origin: ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean),
