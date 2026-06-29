@@ -345,5 +345,14 @@
   "UTC-5 — Нью-Йорк": "UTC-5 — New York",
   "Таймаут сессии (минуты)": "Session Timeout (minutes)",
 
-  "Действия пользователя": "User actions"
+  "Действия пользователя": "User actions",
+
+  "Всё прочитано": "All caught up",
+  "Отметить все прочитанными": "Mark all read",
+  "Нет уведомлений": "No notifications",
+  "У вас пока нет уведомлений.": "You have no notifications yet.",
+  "Не удалось загрузить уведомления.": "Failed to load notifications.",
+  "Рассылка": "Broadcast",
+  "{n}д назад": "{n}d ago",
+  "{n} непрочитанных": "{n} unread"
 }

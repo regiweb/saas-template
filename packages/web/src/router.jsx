@@ -7,6 +7,7 @@ import Register from './pages/Register.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Welcome from './pages/Welcome.jsx'
+import Notifications from './pages/Notifications.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import UsersList from './pages/admin/UsersList.jsx'
 import UserDetail from './pages/admin/UserDetail.jsx'
@@ -55,6 +56,16 @@ export default function Router() {
             <ProtectedRoute>
               <AppLayout>
                 <Welcome />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <Notifications />
               </AppLayout>
             </ProtectedRoute>
           }
