@@ -1258,3 +1258,8 @@
 @media (max-width: 560px) {
   .svc-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Admin broadcast (EZL-US-018) ───────────────────────────────── */
+.bc-count { float: right; font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0; text-transform: none; }
+.bc-opt   { font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.bc-textarea { resize: vertical; min-height: 96px; line-height: 1.5; font-family: inherit; }

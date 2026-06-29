@@ -14,6 +14,7 @@ import UserDetail from './pages/admin/UserDetail.jsx'
 import AdminSettings from './pages/admin/AdminSettings.jsx'
 import SessionsList from './pages/admin/SessionsList.jsx'
 import InfraMonitor from './pages/admin/InfraMonitor.jsx'
+import Broadcast from './pages/admin/Broadcast.jsx'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -90,6 +91,10 @@ export default function Router() {
         <Route
           path="/admin/metrics"
           element={<AdminRoute><InfraMonitor /></AdminRoute>}
+        />
+        <Route
+          path="/admin/broadcast"
+          element={<AdminRoute><Broadcast /></AdminRoute>}
         />
         <Route
           path="/admin/settings"
