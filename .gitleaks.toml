@@ -47,15 +47,14 @@ id = "ezl-jwt-secret-fallback"
 description = "Insecure JWT/app-secret fallback shipped in code"
 regex = '''(?i)dev-secret-change-me'''
 tags = ["ezl", "auth"]
-  # TODO(EZL-SECAUDIT-v0.3.0-C1): two known instances remain (live fallback in
-  # index.js + scaffold template in generator.js). They are tracked under C1 and
-  # removed when the APP_SECRET fail-fast lands. DELETE this allowlist then — the
-  # rule must block the fallback everywhere afterward.
+  # index.js names `dev-secret-change-me` in a WEAK_SECRETS *denylist* (C1 fail-fast)
+  # to REJECT it at startup — it is not a live secret. Allowlist that one file so the
+  # denylist entry does not self-trip the rule; the rule still blocks the fallback
+  # everywhere else.
   [rules.allowlist]
-  description = "C1 — pre-existing dev-secret fallback, fixed under EZL-SECAUDIT-v0.3.0-C1"
+  description = "C1 fail-fast denylist references the bad default to reject it (not a secret)"
   paths = [
     '''services/node-app/src/index\.js''',
-    '''packages/cli/generator\.js''',
   ]
 
 [allowlist]
