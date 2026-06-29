@@ -388,5 +388,21 @@
   "Мы проведём обслуживание с 02:00 до 03:00 UTC.": "We will be performing maintenance from 02:00 to 03:00 UTC.",
   "Отправить рассылку": "Send Broadcast",
   "Рассылка отправлена {n} пользователям": "Broadcast sent to {n} users",
-  "Не удалось отправить рассылку": "Failed to send broadcast"
+  "Не удалось отправить рассылку": "Failed to send broadcast",
+
+  "Бизнес": "Business",
+  "Рост и KPI по аккаунтам": "Growth and account KPIs",
+  "За всё время": "all time",
+  "Новых сегодня": "New Today",
+  "{n} за неделю": "{n} this week",
+  "Новых за месяц": "New This Month",
+  "Активные пользователи": "Active Users",
+  "{n} событий · 7д": "{n} events · 7d",
+  "Регистрации · за 14 дней": "Signups · last 14 days",
+  "{n} всего": "{n} total",
+  "Нет данных": "No data",
+  "Пользователи по ролям": "Users by role",
+  "Пользователи по статусу": "Users by status",
+  "Администраторы": "Admins",
+  "⚠️ Не удалось загрузить бизнес-метрики. Проверьте статус сервера или соединение.": "⚠️ Could not load business metrics. Check server status or your connection."
 }

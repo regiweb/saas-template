@@ -65,6 +65,9 @@ export async function exportUsers(token) {
 export const getMetrics = (token) =>
   request('/metrics/', token)
 
+export const getBusinessMetrics = (token) =>
+  request('/business', token)
+
 export const sendBroadcast = (token, { title, body, target }) =>
   request('/broadcast/', token, { method: 'POST', body: JSON.stringify({ title, body, target }) })
 
