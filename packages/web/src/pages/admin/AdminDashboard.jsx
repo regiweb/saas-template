@@ -80,10 +80,12 @@ export default function AdminDashboard() {
           <div className="header-actions">
             {!error && !isEmpty && (
               <button className="btn-sm sec" onClick={handleExport} disabled={exporting}>
-                {exporting ? t('Exporting…') : t('📤 Export')}
+                <i className="ti ti-download" aria-hidden="true" /> {exporting ? t('Exporting…') : t('Export')}
               </button>
             )}
-            <button className="btn-sm pri" onClick={() => setShowInvite(true)}>{t('+ Create User')}</button>
+            <button className="btn-sm pri" onClick={() => setShowInvite(true)}>
+              <i className="ti ti-user-plus" aria-hidden="true" /> {t('Create User')}
+            </button>
           </div>
         )}
       </div>
@@ -109,7 +111,7 @@ export default function AdminDashboard() {
             <>
               <MetricCard
                 label={t('Total Users')}
-                icon="👥"
+                icon={<i className="ti ti-users" />}
                 value={data?.totalUsers ?? 0}
                 delta={data?.totalUsers
                   ? <><span className="up">↑ {data.newUsersWeek}</span> {t('this week')}</>
@@ -119,7 +121,7 @@ export default function AdminDashboard() {
               />
               <MetricCard
                 label={t('Active Sessions')}
-                icon="🟢"
+                icon={<i className="ti ti-device-desktop" />}
                 value={data?.activeSessions ?? 0}
                 delta={t('right now')}
                 variant={data?.activeSessions ? 'ok' : 'n'}
@@ -127,7 +129,7 @@ export default function AdminDashboard() {
               />
               <MetricCard
                 label={t('Failed Logins 24h')}
-                icon="⚠️"
+                icon={<i className="ti ti-alert-triangle" />}
                 value={data?.failedLogins ?? 0}
                 delta={data?.failedLogins
                   ? <><span className="dn">↑ {data.failedDelta}</span> {t('vs yesterday')}</>
@@ -137,7 +139,7 @@ export default function AdminDashboard() {
               />
               <MetricCard
                 label={t('Blocked Accounts')}
-                icon="🚫"
+                icon={<i className="ti ti-ban" />}
                 value={data?.blockedUsers ?? 0}
                 delta={data?.blockedUsers ? t('access revoked') : t('none blocked')}
                 variant={data?.blockedUsers ? 'warn' : 'n'}
@@ -161,10 +163,10 @@ export default function AdminDashboard() {
             {loading ? (
               Array.from({ length: 4 }, (_, i) => <SkelFeedItem key={i} />)
             ) : error ? (
-              <div className="empty-state"><div className="empty-ico">📭</div></div>
+              <div className="empty-state"><div className="empty-ico"><i className="ti ti-inbox" /></div></div>
             ) : !data?.activity?.length ? (
               <div className="empty-state">
-                <div className="empty-ico">📭</div>
+                <div className="empty-ico"><i className="ti ti-inbox" /></div>
                 <div className="empty-ttl">{t('No activity yet')}</div>
                 <div className="empty-sub">{t('Events appear here once users start registering and logging in')}</div>
               </div>
@@ -192,7 +194,7 @@ export default function AdminDashboard() {
                 <div className="action-item" role="button" tabIndex={0}
                   onClick={() => setShowInvite(true)}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowInvite(true) } }}>
-                  <div className="action-ico ico-teal">👤</div>
+                  <div className="action-ico ico-teal"><i className="ti ti-user-plus" /></div>
                   <div>
                     <div className="action-name">{t('Create User')}</div>
                     <div className="action-desc">{isEmpty ? t('Add the first account') : t('Add a new account manually')}</div>
@@ -202,7 +204,7 @@ export default function AdminDashboard() {
                 <div className="action-item" role="button" tabIndex={0}
                   onClick={handleExport}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleExport() } }}>
-                  <div className="action-ico ico-blue">📤</div>
+                  <div className="action-ico ico-blue"><i className="ti ti-download" /></div>
                   <div>
                     <div className="action-name">{t('Export Users')}</div>
                     <div className="action-desc">{exporting ? t('Exporting…') : t('Download CSV of all accounts')}</div>
