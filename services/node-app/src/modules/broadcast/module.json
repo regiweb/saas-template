@@ -1,0 +1,10 @@
+{
+  "name": "broadcast",
+  "prefix": "/api/admin/broadcast",
+  "routes": "./routes.js",
+  "export": "broadcastRoutes",
+  "requires": ["auth", "admin", "notifications"],
+  "optional": [],
+  "env": [],
+  "nav": [{ "label": "Broadcast", "path": "/admin/broadcast", "role": "admin" }]
+}
