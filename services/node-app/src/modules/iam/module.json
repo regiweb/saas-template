@@ -1,9 +1,12 @@
 {
   "name": "iam",
-  "type": "util",
+  "prefix": "/api/admin/iam",
+  "routes": "./routes.js",
+  "export": "iamRoutes",
   "migrations": "./migrations",
   "seed": "./seed.js",
   "requires": ["auth", "admin"],
   "optional": [],
-  "env": []
+  "env": [],
+  "nav": [{ "label": "Roles", "path": "/admin/roles", "role": "admin" }]
 }
