@@ -34,6 +34,19 @@ if (APP_SECRET.length < 32) {
 
 await app.register(fjwt, { secret: APP_SECRET })
 
+// EZL-SECAUDIT-v0.3.0-M3: baseline security headers on every response. HSTS is
+// ignored by browsers over plain HTTP and takes effect once staging/prod is on TLS
+// (C3). The API serves JSON only, so a deny-all CSP is safe and blocks framing.
+app.addHook('onRequest', async (request, reply) => {
+  reply.headers({
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'no-referrer',
+    'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  })
+})
+
 app.decorate('db', pool)
 app.decorate('redis', new Redis(process.env.REDIS_URL || 'redis://redis:6379'))
 
