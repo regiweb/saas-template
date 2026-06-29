@@ -88,8 +88,13 @@ export async function login(request, reply) {
   const user = rows[0]
   // Always run bcrypt to prevent timing attacks
   const valid = user ? await bcrypt.compare(password, user.password) : await bcrypt.hash(password, BCRYPT_ROUNDS)
-  if (!user || !valid || typeof valid !== 'boolean')
+  if (!user || !valid || typeof valid !== 'boolean') {
+    await request.server.db.query(
+      'INSERT INTO failed_logins (email, ip) VALUES ($1, $2)',
+      [String(email).toLowerCase().trim().slice(0, 255), request.ip]
+    ).catch(() => {})  // best-effort metric, never blocks the response
     return errReply(reply, 401, 'INVALID_CREDENTIALS', 'Invalid email or password')
+  }
 
   await request.server.db.query(
     'UPDATE users SET last_login = NOW() WHERE id = $1',

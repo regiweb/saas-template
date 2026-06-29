@@ -136,12 +136,12 @@ export default function AdminDashboard() {
                 valueClass={data?.failedLogins ? 'warn' : 'muted'}
               />
               <MetricCard
-                label={t('System Uptime')}
-                icon="⏱"
-                value={data?.uptime ?? '99.8%'}
-                delta={t('last 30 days')}
-                variant="n"
-                valueClass=""
+                label={t('Blocked Accounts')}
+                icon="🚫"
+                value={data?.blockedUsers ?? 0}
+                delta={data?.blockedUsers ? t('access revoked') : t('none blocked')}
+                variant={data?.blockedUsers ? 'warn' : 'n'}
+                valueClass={data?.blockedUsers ? 'warn' : 'muted'}
               />
             </>
           )}

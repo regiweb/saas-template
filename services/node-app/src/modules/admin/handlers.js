@@ -42,22 +42,26 @@ async function auditLog(db, { userId, actorId, type, event, meta }) {
 
 export async function getDashboard(request, reply) {
   const db = request.server.db
-  const [totalRes, newWeekRes, sessionsRes, activityRes] = await Promise.all([
+  const [totalRes, newWeekRes, sessionsRes, blockedRes, failed24Res, failedPrevRes, activityRes] = await Promise.all([
     db.query('SELECT COUNT(*)::int AS n FROM users'),
     db.query("SELECT COUNT(*)::int AS n FROM users WHERE created_at > NOW() - INTERVAL '7 days'"),
     db.query('SELECT COUNT(*)::int AS n FROM sessions'),
+    db.query("SELECT COUNT(*)::int AS n FROM users WHERE status = 'blocked'"),
+    db.query("SELECT COUNT(*)::int AS n FROM failed_logins WHERE created_at > NOW() - INTERVAL '24 hours'"),
+    db.query("SELECT COUNT(*)::int AS n FROM failed_logins WHERE created_at > NOW() - INTERVAL '48 hours' AND created_at <= NOW() - INTERVAL '24 hours'"),
     db.query(
       'SELECT type, event, meta, created_at FROM user_audit_log ORDER BY created_at DESC LIMIT 20'
     ),
   ])
 
+  const failedLogins = failed24Res.rows[0].n
   return reply.send({
     totalUsers:    totalRes.rows[0].n,
     newUsersWeek:  newWeekRes.rows[0].n,
     activeSessions: sessionsRes.rows[0].n,
-    failedLogins:  0,
-    failedDelta:   0,
-    uptime:        '99.9%',
+    blockedUsers:  blockedRes.rows[0].n,
+    failedLogins,
+    failedDelta:   Math.max(0, failedLogins - failedPrevRes.rows[0].n),
     activity: activityRes.rows.map(r => ({
       type:  r.type,
       event: r.event,
