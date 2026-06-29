@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt'
-import { randomBytes } from 'crypto'
+import { randomBytes, createHmac } from 'crypto'
 import { sendPasswordReset } from '../mail/mailer.js'
 
 const BCRYPT_ROUNDS = 12
 const REFRESH_TTL_SEC = 7 * 24 * 60 * 60  // 7d
 const RESET_TTL_SEC   = 60 * 60            // 1h
+const FAILED_LOGINS_RETENTION_DAYS = parseInt(process.env.FAILED_LOGINS_RETENTION_DAYS || '30', 10) || 30
 
 function uid(prefix) {
   return `${prefix}_${randomBytes(12).toString('hex')}`
@@ -89,10 +90,21 @@ export async function login(request, reply) {
   // Always run bcrypt to prevent timing attacks
   const valid = user ? await bcrypt.compare(password, user.password) : await bcrypt.hash(password, BCRYPT_ROUNDS)
   if (!user || !valid || typeof valid !== 'boolean') {
+    // EZL-SECAUDIT-v0.3.0-M1: failed_logins only feeds the "failed 24h" dashboard
+    // count. Don't accumulate PII — store no email and a keyed hash of the IP
+    // (correlatable, not reversible), and opportunistically prune old rows so the
+    // table stays bounded without a scheduler.
+    const ipHash = createHmac('sha256', process.env.APP_SECRET).update(request.ip || '').digest('hex')
     await request.server.db.query(
-      'INSERT INTO failed_logins (email, ip) VALUES ($1, $2)',
-      [String(email).toLowerCase().trim().slice(0, 255), request.ip]
+      'INSERT INTO failed_logins (email, ip) VALUES (NULL, $1)',
+      [ipHash]
     ).catch(() => {})  // best-effort metric, never blocks the response
+    if (Math.random() < 0.02) {
+      request.server.db.query(
+        "DELETE FROM failed_logins WHERE created_at < NOW() - ($1 || ' days')::interval",
+        [String(FAILED_LOGINS_RETENTION_DAYS)]
+      ).catch(() => {})
+    }
     return errReply(reply, 401, 'INVALID_CREDENTIALS', 'Invalid email or password')
   }
 
