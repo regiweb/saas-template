@@ -31,8 +31,15 @@ export const SYSTEM_ROLES = {
   user:  { permissions: ['profile:read', 'profile:write'] },
 }
 
+// Names of roles that must never be deleted or have their permissions emptied.
+export const SYSTEM_ROLE_NAMES = new Set(Object.keys(SYSTEM_ROLES))
+
 export function isKnownPermission(key) {
   return PERMISSION_KEYS.has(key)
+}
+
+export function isSystemRole(name) {
+  return SYSTEM_ROLE_NAMES.has(name)
 }
 
 // Effective permissions = union of the permissions of every role the user holds.
