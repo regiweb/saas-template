@@ -8,7 +8,7 @@
   --bg-p:   #18181B;
   --surf:   #27272A;
   --surf-h: #3F3F46;
-  --brd:    #3F3F46;
+  --brd:    var(--surf-h);
   --brd-s:  rgba(63,63,70,0.5);
 
   --txt:    #FAFAFA;
@@ -23,7 +23,7 @@
   --ok:     #4ADE80;
   --err:    #F87171;
   --warn:   #FB923C;
-  --teal:   #2DD4BF;
+  --teal:   var(--acc-h);  /* alias — single source for #2DD4BF */
 
   --r4:     4px;
   --r8:     8px;
@@ -282,7 +282,7 @@
   .fi-err-msg {
     font-size: 10.5px;
     margin-top: 3px;
-    color: #F87171;
+    color: var(--err);
     font-family: 'JetBrains Mono', monospace;
   }
 
