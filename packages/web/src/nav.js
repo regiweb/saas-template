@@ -13,5 +13,6 @@ export const NAV_ITEMS = [
   { icon: 'ti ti-layout-dashboard', label: 'Admin',         path: '/admin',          end: true,  roles: ['admin'] },
   { icon: 'ti ti-users',            label: 'Users',         path: '/admin/users',    end: false, roles: ['admin'] },
   { icon: 'ti ti-device-desktop',   label: 'Sessions',      path: '/admin/sessions', end: false, roles: ['admin'] },
+  { icon: 'ti ti-activity-heartbeat', label: 'Infrastructure', path: '/admin/metrics', end: false, roles: ['admin'] },
   { icon: 'ti ti-settings',         label: 'Settings',      path: '/admin/settings', end: false, roles: ['admin'] },
 ]

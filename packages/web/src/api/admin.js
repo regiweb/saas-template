@@ -62,6 +62,9 @@ export async function exportUsers(token) {
   URL.revokeObjectURL(url)
 }
 
+export const getMetrics = (token) =>
+  request('/metrics/', token)
+
 export const getSettings = (token) =>
   request('/settings', token)
 
