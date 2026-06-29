@@ -170,6 +170,11 @@ export async function updateRole(request, reply) {
     meta:    `New role: ${role} · by ${request.user.email}`,
   })
 
+  // EZL-SECAUDIT-v0.3.0-H3: a role change must take effect immediately. Revoke this
+  // user's existing access tokens (esp. on demotion admin→user) so the stale role in
+  // their JWT can't be used until the next refresh re-reads the role from the DB.
+  await request.server.redis.set(`user_revoked:${id}`, Date.now(), 'EX', REFRESH_TTL_SEC)
+
   return reply.send({ ok: true })
 }
 

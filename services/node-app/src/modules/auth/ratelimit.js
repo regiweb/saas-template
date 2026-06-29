@@ -31,8 +31,13 @@ export function rateLimit({ keyPrefix, max, windowSec, by = 'ip' }) {
 
     let count
     try {
-      count = await server.redis.incr(key)
-      if (count === 1) await server.redis.expire(key, windowSec)
+      // Atomic INCR + first-hit EXPIRE — guarantees the window key always gets a TTL,
+      // even if a failure would otherwise land between a separate INCR and EXPIRE
+      // (which would leave the key without expiry and wedge the client at 429).
+      count = await server.redis.eval(
+        "local c = redis.call('INCR', KEYS[1]); if c == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end; return c",
+        1, key, windowSec,
+      )
     } catch (err) {
       // Fail open: never take down auth because the limiter store is unavailable.
       server.log.warn({ err }, '[ratelimit] redis error — allowing request')
