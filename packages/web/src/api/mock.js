@@ -10,7 +10,8 @@ let users = [
   {
     id: 'usr_admin_1',
     email: 'admin@ezlaunch.io',
-    password: 'admin1234',
+    // demo-only fixture credential for offline mock mode — NOT a real account
+    password: 'demo-admin-pw',
     role: 'admin',
     createdAt: '2026-01-01T00:00:00.000Z',
   },

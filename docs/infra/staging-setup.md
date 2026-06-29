@@ -2,6 +2,9 @@
 
 > EZL-задача: CI_CD_STRATEGY.md п.7 #2  
 > Обновлено: 2026-06-14
+>
+> ⚠️ `<DEPLOY_USER>`, `<STAGING_HOST>`, `<SSH_PORT>` — плейсхолдеры; реальные значения в private vault
+> (`Security/CREDENTIALS.md`). Не коммить инфра-реквизиты в публичный репо.
 
 ## Обзор
 
@@ -25,7 +28,7 @@
 Выполняется один раз через SSH:
 
 ```bash
-ssh -p 2200 ezl@178.236.25.13
+ssh <DEPLOY_USER>@<STAGING_HOST> -p <SSH_PORT>
 
 # 1. Создать директорию
 mkdir -p ~/ezl-staging
@@ -51,7 +54,7 @@ NODE_ENV=staging
 ## Управление staging-стеком
 
 ```bash
-ssh -p 2200 ezl@178.236.25.13
+ssh <DEPLOY_USER>@<STAGING_HOST> -p <SSH_PORT>
 cd ~/ezl-staging
 
 # Статус
@@ -108,7 +111,7 @@ docker exec ezl-staging-caddy-1 wget -qO- http://node-app:3000/health
 docker exec ezl-staging-caddy-1 wget -qO- http://node-app:3000/health
 
 # Снаружи (если порт 8080 открыт в firewall/security group)
-curl -k https://178.236.25.13:8443/health/node
+curl -k https://<STAGING_HOST>:8443/health/node
 ```
 
 Убедиться что staging и prod — отдельные окружения:
