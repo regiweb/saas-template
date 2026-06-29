@@ -354,5 +354,24 @@
   "Не удалось загрузить уведомления.": "Failed to load notifications.",
   "Рассылка": "Broadcast",
   "{n}д назад": "{n}d ago",
-  "{n} непрочитанных": "{n} unread"
+  "{n} непрочитанных": "{n} unread",
+
+  "Инфраструктура": "Infrastructure",
+  "Снимок системы в реальном времени · автообновление каждые 5с": "Live system snapshot · auto-refreshes every 5s",
+  "Пауза": "Pause",
+  "Авто": "Auto",
+  "Обновить": "Refresh",
+  "⚠️ Не удалось загрузить метрики инфраструктуры. Проверьте статус сервера или соединение.": "⚠️ Could not load infrastructure metrics. Check server status or your connection.",
+  "Работает": "Healthy",
+  "Недоступен": "Down",
+  "{n} мс задержка": "{n} ms latency",
+  "Недостижим": "Unreachable",
+  "Аптайм системы": "System Uptime",
+  "хост-машина": "host machine",
+  "Память занята": "Memory Used",
+  "{used} из {total} МБ": "{used} of {total} MB",
+  "Нагрузка CPU (1м)": "CPU Load (1m)",
+  "{n} ядер": "{n} cores",
+  "Процесс API": "API Process",
+  "аптайм {time} · {ver}": "up {time} · {ver}"
 }

@@ -1227,3 +1227,34 @@
 .ntf-time { flex: 0 0 auto; font-size: 10px; color: var(--muted); }
 .ntf-body { font-size: 10.5px; color: var(--txt2); margin: 4px 0 0; line-height: 1.5; white-space: pre-wrap; }
 .ntf-badge { margin-top: 8px; }
+
+/* ── Infrastructure monitor (EZL-US-016) ────────────────────────── */
+.svc-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;
+}
+.svc-card {
+  background: var(--bg); border: 1px solid var(--brd);
+  border-radius: var(--r12); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  position: relative; overflow: hidden;
+}
+.svc-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.svc-ok::before   { background: var(--ok); }
+.svc-down::before { background: var(--err); }
+.svc-top { display: flex; align-items: center; gap: 8px; }
+.svc-ico { font-size: 15px; color: var(--txt2); }
+.svc-name { font-size: 12px; font-weight: 700; color: var(--txt); }
+.svc-badge {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.svc-badge.on  { color: var(--ok); }
+.svc-badge.off { color: var(--err); }
+.svc-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.svc-badge.on .svc-dot  { box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+.svc-badge.off .svc-dot { box-shadow: 0 0 5px rgba(239,68,68,0.5); }
+.svc-meta { font-size: 10.5px; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .svc-grid { grid-template-columns: 1fr; }
+}
