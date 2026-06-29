@@ -3,6 +3,7 @@ import ToggleSwitch from '../../components/admin/ToggleSwitch.jsx'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher.jsx'
 import useAdminSettings from '../../hooks/useAdminSettings.js'
 import { useT } from '../../i18n/index.jsx'
+import { stripIcon } from '../../lib/stripIcon.js'
 
 const TIMEZONES = [
   { value: 'UTC+0', label: 'UTC+0 — London' },
@@ -220,7 +221,7 @@ export default function AdminSettings() {
                   <div className="toggle-info">
                     <div className="toggle-name">{t('Debug mode')}</div>
                     <div className="toggle-desc">{t('Enable verbose logging and error details')}</div>
-                    <div className="toggle-warn">{t('⚠️ Do not enable in production')}</div>
+                    <div className="toggle-warn"><i className="ti ti-alert-triangle" aria-hidden="true" /> {stripIcon(t('⚠️ Do not enable in production'))}</div>
                   </div>
                   <ToggleSwitch
                     checked={settings.debugMode}
@@ -281,7 +282,7 @@ export default function AdminSettings() {
             {/* Preferences — interface language */}
             <div className="settings-section">
               <div className="sec-header">
-                <div className="sec-title">{t('🌐 Language')}</div>
+                <div className="sec-title"><i className="ti ti-world" aria-hidden="true" /> {stripIcon(t('🌐 Language'))}</div>
                 <div className="sec-desc">{t('Interface language')}</div>
               </div>
               <div className="sec-body">

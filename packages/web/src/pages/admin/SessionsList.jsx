@@ -4,6 +4,7 @@ import AdminShell from '../../components/admin/AdminShell.jsx'
 import ConfirmModal from '../../components/admin/ConfirmModal.jsx'
 import IdTag from '../../components/admin/IdTag.jsx'
 import Toast from '../../components/admin/Toast.jsx'
+import { stripIcon } from '../../lib/stripIcon.js'
 import useSessions from '../../hooks/useSessions.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { useT } from '../../i18n/index.jsx'
@@ -41,7 +42,7 @@ function SelfRevokeModal({ session, countdown, onConfirm, onCancel, loading }) {
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-title">{t('⚠ Revoke current session?')}</div>
+        <div className="modal-title"><i className="ti ti-alert-triangle" aria-hidden="true" /> {stripIcon(t('⚠ Revoke current session?'))}</div>
         <div className="modal-body">
           {t('You are about to revoke')} <strong>{t('your own active session')}</strong> {t('from IP')}{' '}
           <strong>{session.ip}</strong>.<br /><br />
@@ -265,7 +266,7 @@ export default function SessionsList() {
           /* Empty */
           ) : !filteredSessions.length ? (
             <div className="empty-state" style={{ padding: '48px 20px' }}>
-              <div className="empty-ico" style={{ fontSize: 28, opacity: 0.35 }}>🖥</div>
+              <div className="empty-ico" style={{ fontSize: 28, opacity: 0.35 }}><i className="ti ti-device-desktop" /></div>
               <div className="empty-ttl" style={{ fontFamily: 'Unbounded, sans-serif', fontSize: 12 }}>
                 {sessions.length ? t('No sessions match this filter') : t('No active sessions')}
               </div>
