@@ -301,7 +301,14 @@ export async function exportUsers(request, reply) {
   const { rows } = await request.server.db.query(
     'SELECT id, email, role, status, created_at, last_login FROM users ORDER BY created_at DESC'
   )
-  const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  // EZL-SECAUDIT-v0.3.0-H1: neutralize CSV formula-injection. A cell starting with
+  // = + - @ (or tab/CR) is executed as a formula by Excel/Sheets; prefix it with a
+  // single quote so it is treated as text, then quote/escape normally.
+  const esc = (v) => {
+    let s = String(v ?? '')
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`
+    return `"${s.replace(/"/g, '""')}"`
+  }
   const header = ['id', 'email', 'role', 'status', 'created_at', 'last_login']
   const lines = [header.join(',')]
   for (const r of rows) {
