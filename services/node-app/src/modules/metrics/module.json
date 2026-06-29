@@ -1,0 +1,10 @@
+{
+  "name": "metrics",
+  "prefix": "/api/admin/metrics",
+  "routes": "./routes.js",
+  "export": "metricsRoutes",
+  "requires": ["auth", "admin"],
+  "optional": [],
+  "env": [],
+  "nav": [{ "label": "Infrastructure", "path": "/admin/metrics", "role": "admin" }]
+}
