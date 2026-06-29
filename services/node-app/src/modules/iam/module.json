@@ -1,0 +1,8 @@
+{
+  "name": "iam",
+  "type": "util",
+  "migrations": "./migrations",
+  "requires": ["auth", "admin"],
+  "optional": [],
+  "env": []
+}
