@@ -1,0 +1,32 @@
+// EZL-FR-004b — IAM seed: mirror the permission registry into the DB and ensure
+// the system roles (admin = full registry, user = minimal) exist with their
+// grants. Idempotent (ON CONFLICT DO NOTHING), so it runs safely on every boot
+// and picks up newly-added permissions for the admin role automatically.
+import { PERMISSIONS, SYSTEM_ROLES } from './permissions.js'
+
+export async function seed(app) {
+  const db = app.db
+
+  for (const p of PERMISSIONS) {
+    await db.query(
+      'INSERT INTO permissions (key, description) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
+      [p.key, p.description],
+    )
+  }
+
+  for (const [name, def] of Object.entries(SYSTEM_ROLES)) {
+    const id = `role_${name}`
+    await db.query(
+      'INSERT INTO roles (id, name, is_system) VALUES ($1, $2, TRUE) ON CONFLICT (id) DO NOTHING',
+      [id, name],
+    )
+    for (const key of def.permissions) {
+      await db.query(
+        'INSERT INTO role_permissions (role_id, permission_key) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [id, key],
+      )
+    }
+  }
+
+  app.log.info('[iam] seed: permissions registry + system roles ensured')
+}
