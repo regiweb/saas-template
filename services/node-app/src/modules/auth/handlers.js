@@ -53,6 +53,10 @@ export async function register(request, reply) {
 
   if (!email)    return errReply(reply, 400, 'VALIDATION_ERROR', 'email is required', 'email')
   if (!password) return errReply(reply, 400, 'VALIDATION_ERROR', 'password is required', 'password')
+  if (typeof email !== 'string' || email.length > 254)  // EZL-SECAUDIT-v0.3.0-M4: RFC max email length
+    return errReply(reply, 400, 'VALIDATION_ERROR', 'Invalid email', 'email')
+  if (typeof password !== 'string')
+    return errReply(reply, 400, 'VALIDATION_ERROR', 'password must be a string', 'password')
   if (!isValidEmail(email))  return errReply(reply, 400, 'VALIDATION_ERROR', 'Invalid email format', 'email')
   if (password.length < 8)   return errReply(reply, 400, 'VALIDATION_ERROR', 'Password min 8 characters', 'password')
   if (password.length > 72)  return errReply(reply, 400, 'VALIDATION_ERROR', 'Password max 72 characters', 'password')
