@@ -94,6 +94,12 @@ jobs:
       - run: npm ci
         working-directory: packages/web
 
+      - run: npm run lint
+        working-directory: packages/web
+
+      - run: npm run test
+        working-directory: packages/web
+
       - run: npm run build
         working-directory: packages/web
 
