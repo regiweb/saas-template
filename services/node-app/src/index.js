@@ -15,9 +15,22 @@ await app.register(cors, {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 })
 
-await app.register(fjwt, {
-  secret: process.env.APP_SECRET || 'dev-secret-change-me',
-})
+// EZL-SECAUDIT-v0.3.0-C1: refuse to start without a real APP_SECRET.
+// A predictable fallback secret lets anyone forge admin JWTs (repo is public).
+const APP_SECRET = process.env.APP_SECRET
+const WEAK_SECRETS = new Set(['dev-secret-change-me', 'change-me-in-production'])
+if (!APP_SECRET || WEAK_SECRETS.has(APP_SECRET)) {
+  app.log.fatal(
+    'APP_SECRET is missing or set to a known placeholder. Set a strong, unique value ' +
+      '(e.g. `openssl rand -hex 32`) in the environment before starting. Refusing to start.',
+  )
+  process.exit(1)
+}
+if (APP_SECRET.length < 32) {
+  app.log.warn('APP_SECRET is shorter than 32 chars — prefer a longer random secret (`openssl rand -hex 32`).')
+}
+
+await app.register(fjwt, { secret: APP_SECRET })
 
 app.decorate('db', pool)
 app.decorate('redis', new Redis(process.env.REDIS_URL || 'redis://redis:6379'))

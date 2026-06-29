@@ -310,7 +310,13 @@ await app.register(cors, {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 })
 
-await app.register(fjwt, { secret: process.env.APP_SECRET || 'dev-secret-change-me' })
+// Refuse to start without a real APP_SECRET — a predictable fallback lets anyone forge JWTs.
+const APP_SECRET = process.env.APP_SECRET
+if (!APP_SECRET || APP_SECRET === 'change-me-in-production') {
+  app.log.fatal('APP_SECRET is missing or a placeholder. Set a strong value (\`openssl rand -hex 32\`). Refusing to start.')
+  process.exit(1)
+}
+await app.register(fjwt, { secret: APP_SECRET })
 
 app.decorate('db', pool)
 app.decorate('redis', new Redis(process.env.REDIS_URL || 'redis://redis:6379'))
