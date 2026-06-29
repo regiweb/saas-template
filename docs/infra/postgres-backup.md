@@ -2,6 +2,9 @@
 
 > Задача: HOTFIX / CI_CD_STRATEGY.md п.7 #6  
 > Обновлено: 2026-06-14
+>
+> ⚠️ `<DEPLOY_USER>`, `<STAGING_HOST>`, `<SSH_PORT>` — плейсхолдеры; реальные значения в private vault
+> (`Security/CREDENTIALS.md`). Не коммить инфра-реквизиты в публичный репо.
 
 ## Обзор
 
@@ -22,7 +25,7 @@
 
 ## Первоначальная настройка на VM
 
-Выполняется один раз через SSH (`ssh -p 2200 ezl@178.236.25.13`):
+Выполняется один раз через SSH (`ssh <DEPLOY_USER>@<STAGING_HOST> -p <SSH_PORT>`):
 
 ```bash
 # 1. Создать директории
@@ -77,7 +80,7 @@ tail ~/ezl/logs/backup.log
 ### Быстрый старт
 
 ```bash
-ssh -p 2200 ezl@178.236.25.13
+ssh <DEPLOY_USER>@<STAGING_HOST> -p <SSH_PORT>
 ~/ezl/scripts/postgres-restore.sh ~/ezl/backups/ezlaunch_<timestamp>.sql.gz
 ```
 
@@ -86,7 +89,7 @@ ssh -p 2200 ezl@178.236.25.13
 ### Пошагово (вручную, если скрипт недоступен)
 
 ```bash
-ssh -p 2200 ezl@178.236.25.13
+ssh <DEPLOY_USER>@<STAGING_HOST> -p <SSH_PORT>
 cd ~/ezl
 
 # 1. Остановить app (чтобы не было записей во время restore)

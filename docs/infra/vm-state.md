@@ -1,14 +1,18 @@
 # VM State — EZL-011
 Зафиксировано: 2026-06-14
 
+> ⚠️ Чувствительные значения (хост, SSH-порт, пользователь, имя ключа) заменены плейсхолдерами
+> `<STAGING_HOST>`, `<SSH_PORT>`, `<DEPLOY_USER>`, `<SSH_KEY>`. Реальные значения — только в private vault
+> (`Security/CREDENTIALS.md`). Никогда не коммить инфра-реквизиты в этот публичный репозиторий.
+
 ## Хост
 
 | Параметр | Значение |
 |---|---|
-| IP | 178.236.25.13 |
-| SSH port | 2200 |
-| User | ezl |
-| SSH auth | Ключ `~/.ssh/ezl_ed25519` (PasswordAuthentication: disabled) |
+| IP | `<STAGING_HOST>` (см. vault → Security/CREDENTIALS) |
+| SSH port | `<SSH_PORT>` |
+| User | `<DEPLOY_USER>` |
+| SSH auth | Ключ `~/.ssh/<SSH_KEY>` (PasswordAuthentication: disabled) |
 | OS | Ubuntu 24.04.4 LTS |
 | Kernel | 6.8.0-41-generic |
 | CPUs | 4 |
@@ -100,7 +104,7 @@ FRONTEND_URL
 
 - `PasswordAuthentication no` — уже отключена (только ключи)
 - `PubkeyAuthentication yes` (default)
-- Нестандартный порт: 2200
+- Нестандартный SSH-порт (значение — в vault → Security/CREDENTIALS)
 
 ## Образы Docker
 

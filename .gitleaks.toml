@@ -1,0 +1,72 @@
+# EZL gitleaks config — extends the gitleaks default ruleset.
+#
+# Goal: catch EZL-specific recon/infra leaks that the default rules miss —
+# hardcoded SSH host strings, private-key paths, key passphrases, weak seeded
+# admin credentials, and the insecure dev JWT-secret fallback.
+#
+# Consumed by BOTH:
+#   - .pre-commit-config.yaml  → local pre-commit gate (scan staged diff before push)
+#   - gitleaks-action@v2        → CI "Secret scan" job
+#
+# DESIGN NOTE: rules are STRUCTURAL (pattern-based), never literal. We deliberately
+# do NOT embed the real host / passphrase / current password here — that would
+# re-leak the very values we are scrubbing. Pattern shapes are enough to block
+# re-introduction.
+
+title = "EZL gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "ezl-ssh-host-string"
+description = "Hardcoded SSH user@IPv4 connection string (infra recon)"
+regex = '''[a-z_][a-z0-9_-]*@(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)'''
+tags = ["ezl", "infra"]
+
+[[rules]]
+id = "ezl-ssh-privatekey-path"
+description = "Hardcoded private SSH key path in source"
+regex = '''privateKeyPath\s*[:=]\s*['"][^'"]*(?:id_(?:rsa|ed25519)|_ed25519|\.pem)['"]'''
+tags = ["ezl", "infra"]
+
+[[rules]]
+id = "ezl-ssh-passphrase-literal"
+description = "Hardcoded SSH key passphrase literal in connect options"
+regex = '''passphrase\s*[:=]\s*['"][^'"]+['"]'''
+tags = ["ezl", "infra"]
+
+[[rules]]
+id = "ezl-weak-seed-credential"
+description = "Known weak/seed admin password literal"
+regex = '''\badmin1234\b'''
+tags = ["ezl", "auth"]
+
+[[rules]]
+id = "ezl-jwt-secret-fallback"
+description = "Insecure JWT/app-secret fallback shipped in code"
+regex = '''(?i)dev-secret-change-me'''
+tags = ["ezl", "auth"]
+  # TODO(EZL-SECAUDIT-v0.3.0-C1): two known instances remain (live fallback in
+  # index.js + scaffold template in generator.js). They are tracked under C1 and
+  # removed when the APP_SECRET fail-fast lands. DELETE this allowlist then — the
+  # rule must block the fallback everywhere afterward.
+  [rules.allowlist]
+  description = "C1 — pre-existing dev-secret fallback, fixed under EZL-SECAUDIT-v0.3.0-C1"
+  paths = [
+    '''services/node-app/src/index\.js''',
+    '''packages/cli/generator\.js''',
+  ]
+
+[allowlist]
+description = "Allow the gitleaks config itself (it carries rule patterns, not secrets)"
+paths = [
+  '''\.gitleaks\.toml''',
+]
+regexes = [
+  # Placeholders left in scrubbed infra docs are not secrets.
+  '''<STAGING_HOST>''',
+  '''<DEPLOY_USER>''',
+  '''<SSH_PORT>''',
+  '''<SSH_KEY>''',
+]
