@@ -18,6 +18,19 @@ export async function createNotification(db, { userId, type = 'info', title, bod
   return id
 }
 
+// Bulk fan-out — one notification per targeted user in a single statement.
+// target: 'all' | 'admin' | 'user'. Returns the number of recipients.
+export async function broadcastNotification(db, { target = 'all', type = 'broadcast', title, body = null }) {
+  const { rowCount } = await db.query(
+    `INSERT INTO notifications (id, user_id, type, title, body)
+     SELECT 'ntf_' || replace(gen_random_uuid()::text, '-', ''), u.id, $1, $2, $3
+       FROM users u
+      WHERE ($4 = 'all' OR u.role = $4)`,
+    [String(type).slice(0, 40), String(title).slice(0, 200), body, target],
+  )
+  return rowCount
+}
+
 // GET / — current user's notifications, newest first, with totals.
 export async function listNotifications(request, reply) {
   const userId = request.user.sub
