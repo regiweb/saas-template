@@ -28,5 +28,18 @@ export async function seed(app) {
     }
   }
 
-  app.log.info('[iam] seed: permissions registry + system roles ensured')
+  // EZL-FR-004d — backward compatibility: map every existing user to the system
+  // role matching their legacy users.role ('admin' → role_admin, 'user' → role_user).
+  // Only users with NO role assignment yet are mapped, so an explicit role change
+  // made later via the admin API is never clobbered on the next boot. Idempotent.
+  await db.query(
+    `INSERT INTO user_roles (user_id, role_id)
+     SELECT u.id, 'role_' || u.role
+       FROM users u
+      WHERE u.role IN ('admin', 'user')
+        AND NOT EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id)
+     ON CONFLICT DO NOTHING`,
+  )
+
+  app.log.info('[iam] seed: permissions, system roles + legacy user→role mapping ensured')
 }
