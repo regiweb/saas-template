@@ -71,6 +71,42 @@ export async function getDashboard(request, reply) {
   })
 }
 
+// GET /business — read-only business KPIs for the Business Monitor UI (EZL-US-017).
+// All aggregates come from existing tables; no money/billing surface.
+export async function getBusinessMetrics(request, reply) {
+  const db = request.server.db
+  const [kpiRes, rolesRes, statusRes, signupsRes, activityRes, sessUsersRes] = await Promise.all([
+    db.query(`SELECT
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE created_at >= date_trunc('day', NOW()))::int AS new_today,
+        COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days')::int AS new_week,
+        COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '30 days')::int AS new_month
+      FROM users`),
+    db.query('SELECT role, COUNT(*)::int AS n FROM users GROUP BY role ORDER BY n DESC'),
+    db.query('SELECT status, COUNT(*)::int AS n FROM users GROUP BY status'),
+    db.query(`SELECT to_char(d, 'YYYY-MM-DD') AS day, COUNT(u.id)::int AS n
+        FROM generate_series(date_trunc('day', NOW()) - INTERVAL '13 days', date_trunc('day', NOW()), INTERVAL '1 day') d
+        LEFT JOIN users u ON u.created_at >= d AND u.created_at < d + INTERVAL '1 day'
+       GROUP BY d ORDER BY d`),
+    db.query("SELECT COUNT(*)::int AS n FROM user_audit_log WHERE created_at > NOW() - INTERVAL '7 days'"),
+    db.query('SELECT COUNT(DISTINCT user_id)::int AS n FROM sessions'),
+  ])
+
+  const k = kpiRes.rows[0]
+  return reply.send({
+    totalUsers:    k.total,
+    newToday:      k.new_today,
+    newWeek:       k.new_week,
+    newMonth:      k.new_month,
+    activeUsers:   sessUsersRes.rows[0].n,
+    activity7d:    activityRes.rows[0].n,
+    byRole:        rolesRes.rows.map(r => ({ role: r.role, count: r.n })),
+    byStatus:      statusRes.rows.map(r => ({ status: r.status, count: r.n })),
+    signups14d:    signupsRes.rows.map(r => ({ day: r.day, count: r.n })),
+    ts: new Date().toISOString(),
+  })
+}
+
 export async function listUsers(request, reply) {
   const { search = '', role = '', status = '', page = 1 } = request.query
   const PER_PAGE_OPTIONS = [10, 20, 50, 100]
