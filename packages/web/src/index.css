@@ -1220,12 +1220,18 @@
 
 .ntf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .ntf-item {
-  display: flex; gap: 10px; padding: 12px 14px; cursor: pointer;
+  display: flex; gap: 10px; padding: 12px 14px;
   background: var(--bg); border: 1px solid var(--brd); border-radius: var(--r12);
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, opacity 0.15s;
 }
-.ntf-item:hover { border-color: var(--muted); }
-.ntf-item.unread { background: var(--bg-p); border-color: rgba(13,148,136,0.25); }
+/* Read items are clearly de-emphasized vs unread. */
+.ntf-item:not(.unread) { opacity: 0.55; }
+.ntf-item:not(.unread) .ntf-title { color: var(--txt2); font-weight: 600; }
+.ntf-item.unread {
+  background: var(--bg-p);
+  border-color: rgba(13,148,136,0.35);
+  box-shadow: inset 3px 0 0 var(--teal);
+}
 .ntf-dot { flex: 0 0 auto; width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: transparent; }
 .ntf-item.unread .ntf-dot { background: var(--teal, #2dd4bf); }
 .ntf-main { flex: 1 1 auto; min-width: 0; }
@@ -1278,7 +1284,7 @@
 /* ── Admin broadcast (EZL-US-018) ───────────────────────────────── */
 .bc-count { float: right; font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0; text-transform: none; }
 .bc-opt   { font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; }
-.bc-textarea { resize: vertical; min-height: 96px; line-height: 1.5; font-family: inherit; }
+.bc-textarea { resize: vertical; height: auto; min-height: 96px; padding: 10px 12px; line-height: 1.5; font-family: inherit; }
 
 /* ── Business monitor (EZL-US-017) ──────────────────────────────── */
 .biz-card {

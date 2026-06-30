@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './useAuth.jsx'
+import { useNotificationCount } from './useNotificationCount.jsx'
 import * as api from '../api/notifications.js'
 
 export default function useNotifications() {
   const { accessToken } = useAuth()
+  const { unreadCount, setUnreadCount } = useNotificationCount()
   const [items, setItems] = useState([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -22,7 +23,7 @@ export default function useNotifications() {
     } finally {
       setLoading(false)
     }
-  }, [accessToken])
+  }, [accessToken, setUnreadCount])
 
   useEffect(() => { load() }, [load])
 
