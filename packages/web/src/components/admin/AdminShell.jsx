@@ -5,6 +5,7 @@ import { NAV_ITEMS } from '../../nav.js'
 import Drawer from '../ui/Drawer.jsx'
 import { Logo } from '../ui/Logo.jsx'
 import { LanguageSwitcher } from '../ui/LanguageSwitcher.jsx'
+import { NotificationBell } from '../ui/NotificationBell.jsx'
 import { useT } from '../../i18n/index.jsx'
 
 export default function AdminShell({ children }) {
@@ -35,7 +36,7 @@ export default function AdminShell({ children }) {
         <Logo size="sm" badge="ADMIN" />
         <div className="nav-right">
           <LanguageSwitcher variant="compact" />
-          <button className="nav-icon-btn" aria-label={t('Notifications')}><i className="ti ti-bell" aria-hidden="true" /></button>
+          <NotificationBell />
           <div className="avatar">{initials}</div>
           <button
             className="hamburger-btn"

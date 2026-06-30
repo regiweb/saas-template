@@ -33,7 +33,7 @@ export default function Login() {
       const data = await signIn(email, password)
       setPendingNav(data?.user?.role === 'admin' ? '/admin' : '/welcome')
     } catch (err) {
-      setError(err?.error?.message || t('Something went wrong. Please try again.'))
+      setError(err?.error?.message ? t(err.error.message) : t('Something went wrong. Please try again.'))
       setLoading(false)
     }
   }

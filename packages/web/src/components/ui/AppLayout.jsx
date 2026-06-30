@@ -18,6 +18,7 @@ import { NAV_ITEMS } from '../../nav.js'
 import Drawer from './Drawer.jsx'
 import { Logo } from './Logo.jsx'
 import { LanguageSwitcher } from './LanguageSwitcher.jsx'
+import { NotificationBell } from './NotificationBell.jsx'
 import { useT } from '../../i18n/index.jsx'
 
 export default function AppLayout({ children }) {
@@ -62,6 +63,7 @@ export default function AppLayout({ children }) {
 
         <div className="app-navbar-right">
           <LanguageSwitcher variant="compact" />
+          <NotificationBell />
           <div className="app-avatar" aria-hidden="true">{initials}</div>
 
           {/* Hamburger — visible only on mobile via CSS */}
