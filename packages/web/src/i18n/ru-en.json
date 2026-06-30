@@ -404,5 +404,9 @@
   "Пользователи по ролям": "Users by role",
   "Пользователи по статусу": "Users by status",
   "Администраторы": "Admins",
-  "⚠️ Не удалось загрузить бизнес-метрики. Проверьте статус сервера или соединение.": "⚠️ Could not load business metrics. Check server status or your connection."
+  "⚠️ Не удалось загрузить бизнес-метрики. Проверьте статус сервера или соединение.": "⚠️ Could not load business metrics. Check server status or your connection.",
+
+  "Неверный email или пароль": "Invalid email or password",
+  "Email и пароль обязательны": "email and password are required",
+  "Отметить прочитанным": "Mark read"
 }

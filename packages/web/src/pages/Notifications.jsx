@@ -54,7 +54,6 @@ export default function Notifications() {
             <li
               key={n.id}
               className={`ntf-item${n.read ? '' : ' unread'}`}
-              onClick={() => markRead(n.id)}
             >
               <span className="ntf-dot" aria-hidden="true" />
               <div className="ntf-main">
@@ -63,9 +62,20 @@ export default function Notifications() {
                   <span className="ntf-time">{fmtRelative(n.createdAt, t)}</span>
                 </div>
                 {n.body && <p className="ntf-body">{n.body}</p>}
-                {n.type === 'broadcast' && (
-                  <span className="badge badge-admin ntf-badge">{t('Broadcast')}</span>
-                )}
+                <div className="ntf-foot">
+                  {n.type === 'broadcast' && (
+                    <span className="badge badge-admin ntf-badge">{t('Broadcast')}</span>
+                  )}
+                  {!n.read && (
+                    <button
+                      className="ntf-read-btn"
+                      onClick={() => markRead(n.id)}
+                      aria-label={t('Mark read')}
+                    >
+                      <i className="ti ti-check" aria-hidden="true" /> {t('Mark read')}
+                    </button>
+                  )}
+                </div>
               </div>
             </li>
           ))}
